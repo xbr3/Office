@@ -9,34 +9,23 @@
 $properties = array();
 
 $tmp = array(
-	'tpl' => array(
+	'tplOuter' => array(
 		'type' => 'textfield'
-		,'value' => 'tpl.Office.item'
+		,'value' => 'tpl.Office.outer'
 	)
-	,'sortBy' => array(
+	,'tplMenuRow' => array(
 		'type' => 'textfield'
-		,'value' => 'name'
+		,'value' => 'tpl.Office.menu.row'
 	)
-	,'sortDir' => array(
-		'type' => 'list'
-		,'options' => array(
-			array('text' => 'ASC', 'value' => 'ASC')
-			,array('text' => 'DESC', 'value' => 'DESC')
-		)
-		,'value' => 'ASC'
-	)
-	,'limit' => array(
-		'type' => 'numberfield'
-		,'value' => 5
-	)
-	,'outputSeparator' => array(
+	,'controllers' => array(
 		'type' => 'textfield'
-		,'value' => "\n"
+		,'value' => 'auth'
 	)
-	,'toPlaceholder' => array(
-		'type' => 'combo-boolean'
-		,'value' => false
+	,'action' => array(
+		'type' => 'textfield'
+		,'value' => 'menu'
 	)
+
 );
 
 foreach ($tmp as $k => $v) {

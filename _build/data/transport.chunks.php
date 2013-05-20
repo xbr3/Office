@@ -1,10 +1,5 @@
 <?php
-/**
- * Add chunks to build
- * 
- * @package office
- * @subpackage build
- */
+return array();
 
 $chunks = array();
 

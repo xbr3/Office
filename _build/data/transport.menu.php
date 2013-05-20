@@ -1,10 +1,5 @@
 <?php
-/**
- * Adds modActions and modMenus into package
- *
- * @package office
- * @subpackage build
- */
+return array();
 
 $menus = array();
 

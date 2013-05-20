@@ -1,16 +1,16 @@
 <?php
-/**
- * Loads system settings into build
- *
- * @package office
- * @subpackage build
- */
+
 $settings = array();
 
 $tmp = array(
-	'some_setting' => array(
-		'xtype' => 'combo-boolean'
-		,'value' => true
+	'frontend_css' => array(
+		'xtype' => 'textfield'
+		,'value' => '[[+cssUrl]]web/default.css'
+		,'area' => 'office_main'
+	)
+	,'frontend_js' => array(
+		'xtype' => 'textfield'
+		,'value' => '[[+jsUrl]]web/default.js'
 		,'area' => 'office_main'
 	)
 );
@@ -20,7 +20,7 @@ foreach ($tmp as $k => $v) {
 	$setting = $modx->newObject('modSystemSetting');
 	$setting->fromArray(array_merge(
 		array(
-			'key' => 'office_'.$k
+			'key' => 'off_'.$k
 			,'namespace' => 'office'
 		), $v
 	),'',true,true);

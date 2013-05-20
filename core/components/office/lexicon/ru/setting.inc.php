@@ -1,12 +1,8 @@
 <?php
-/**
- * Settings Russian Lexicon Entries for Office
- *
- * @package office
- * @subpackage lexicon
- */
 
-$_lang['area_office_main'] = 'Основные';
+$_lang['area_off_main'] = 'Основные';
 
-$_lang['setting_office_some_setting'] = 'Какая-то настройка';
-$_lang['setting_office_some_setting_desc'] = 'Это описание для какой-то настройки';
+$_lang['setting_off_frontend_css'] = 'Стили фронтенда';
+$_lang['setting_off_frontend_css_desc'] = 'Путь к файлу со стилями магазина. Если вы хотите использовать собственные стили - укажите путь к ним здесь, или очистите параметр и загрузите их вручную через шаблон сайта.';
+$_lang['setting_off_frontend_js'] = 'Скрипты фронтенда';
+$_lang['setting_off_frontend_js_desc'] = 'Путь к файлу со скриптами магазина. Если вы хотите использовать собственные скрипты - укажите путь к ним здесь, или очистите параметр и загрузите их вручную через шаблон сайта.';

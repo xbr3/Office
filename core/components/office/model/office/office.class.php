@@ -8,9 +8,8 @@
 class Office {
 	/* @var modX $modx */
 	public $modx;
-	/* @var OfficeControllerRequest $request */
-	protected $request;
 	public $initialized = array();
+	public $controllers = array();
 
 
 	function __construct(modX &$modx,array $config = array()) {
@@ -27,6 +26,8 @@ class Office {
 			,'imagesUrl' => $assetsUrl.'images/'
 
 			,'connectorUrl' => $connectorUrl
+			,'controllersPath' => $corePath.'controllers/'
+			,'controllers' => ''
 
 			,'corePath' => $corePath
 			,'modelPath' => $corePath.'model/'
@@ -35,10 +36,15 @@ class Office {
 			,'chunkSuffix' => '.chunk.tpl'
 			,'snippetsPath' => $corePath.'elements/snippets/'
 			,'processorsPath' => $corePath.'processors/'
-		),$config);
+		), $config);
 
-		$this->modx->addPackage('office', $this->config['modelPath']);
+		//$this->modx->addPackage('office', $this->config['modelPath']);
 		$this->modx->lexicon->load('office:default');
+		$tmp = explode(',', $this->config['controllers']);
+		$this->config['controllers'] = array();
+		foreach ($tmp as $v) {
+			$this->config['controllers'][] = strtolower(trim($v));
+		}
 	}
 
 
@@ -48,77 +54,130 @@ class Office {
 	 * @access public
 	 * @param string $ctx The context to load. Defaults to web.
 	 */
-	public function initialize($ctx = 'web') {
+	public function initialize($ctx = 'web', $scriptProperties = array()) {
+		$this->config = array_merge($this->config, $scriptProperties);
+		$this->config['ctx'] = $ctx;
+		if (!empty($this->initialized[$ctx])) {
+			return true;
+		}
 		switch ($ctx) {
-			case 'mgr':
-				if (!$this->modx->loadClass('office.request.OfficeControllerRequest', $this->config['modelPath'], true, true)) {
-					return 'Could not load controller request handler.';
-				}
-				$this->request = new OfficeControllerRequest($this);
-				return $this->request->handleRequest();
-			break;
-			case 'web':
-
-			break;
+			case 'mgr': break;
 			default:
-				/* if you wanted to do any generic frontend stuff here.
-				 * For example, if you have a lot of snippets but common code
-				 * in them all at the beginning, you could put it here and just
-				 * call $office->initialize($modx->context->get('key'));
-				 * which would run this.
-				 */
-			break;
+				if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
+					$config = $this->makePlaceholders($this->config);
+					if ($css = $this->modx->getOption('off_frontend_css')) {
+						$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+					}
+					if ($js = trim($this->modx->getOption('off_frontend_js'))) {
+						$this->modx->regClientStartupScript(str_replace('					', '', '
+						<script type="text/javascript">
+						OfficeConfig = {
+							cssUrl: "'.$this->config['cssUrl'].'web/"
+							,jsUrl: "'.$this->config['jsUrl'].'web/"
+							,imagesUrl: "'.$this->config['imagesUrl'].'web/"
+							,actionUrl: "'.$this->config['actionUrl'].'"
+							,ctx: "'.$this->modx->context->get('key').'"
+							,close_all_message: "'.$this->modx->lexicon('off_message_close_all').'"
+						};
+						</script>
+					'), true);
+						if (!empty($js) && preg_match('/\.js$/i', $js)) {
+							$this->modx->regClientScript(str_replace('							', '', '
+							<script type="text/javascript">
+							if(typeof jQuery == "undefined") {
+								document.write("<script src=\"'.$this->config['jsUrl'].'web/lib/jquery.min.js\" type=\"text/javascript\"><\/script>");
+							}
+							</script>
+							'), true);
+							$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
+						}
+					}
+				}
+				$this->loadControllers();
+				$this->initialized[$ctx] = true;
+				break;
 		}
+		return true;
 	}
 
 
-	/**
-	 * Gets a Chunk and caches it; also falls back to file-based templates
-	 * for easier debugging.
+	/* Method loads custom controllers
 	 *
-	 * @access public
-	 * @param string $name The name of the Chunk
-	 * @param array $properties The properties for the Chunk
-	 * @return string The processed content of the Chunk
-	 */
-	public function getChunk($name,array $properties = array()) {
-		$chunk = null;
-		if (!isset($this->chunks[$name])) {
-			$chunk = $this->modx->getObject('modChunk',array('name' => $name),true);
-			if (empty($chunk)) {
-				$chunk = $this->_getTplChunk($name,$this->config['chunkSuffix']);
-				if ($chunk == false) return false;
+	 * @var string $dir Directory for load controllers
+	 * @return void
+	 * */
+	public function loadControllers($controller = '') {
+		require_once $this->config['controllersPath'] . 'controller.class.php';
+
+		if (!empty($controller) && is_array($controller)) {
+			$controllers = $controller;
+		}
+		else if (!empty($controller)) {
+			$controllers = array($controller);
+		}
+		else {
+			$controllers = $this->config['controllers'];
+		}
+
+		foreach ($controllers as $name) {
+			$file = $this->config['controllersPath'] . $name . '/' . $name.'.class.php';
+			if (file_exists($file)) {
+				$class = include_once($file);
+				if (!class_exists($class)) {
+					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Wrong controller at '.$file);
+				}
+				/* @var officeDefaultController $controller */
+				else if ($controller = new $class($this, $this->config)) {
+					if ($controller instanceof officeControllerInterface && $controller->initialize()) {
+						$this->controllers[strtolower($name)] = $controller;
+					}
+					else {
+						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not load controller '.$file);
+					}
+				}
 			}
-			$this->chunks[$name] = $chunk->getContent();
-		} else {
-			$o = $this->chunks[$name];
-			$chunk = $this->modx->newObject('modChunk');
-			$chunk->setContent($o);
+			else {
+				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not find controller '.$file);
+			}
 		}
-		$chunk->setCacheable(false);
-		return $chunk->process($properties);
 	}
 
 
-	/**
-	 * Returns a modChunk object from a template file.
+	public function loadAction($action, $params = array()) {
+		list($controller, $action) = explode('/', strtolower(trim($action)));
+		if (!empty($controller) && !isset($this->controllers[$controller])) {
+			$this->loadControllers($controller);
+		}
+
+		if (isset($this->controllers[$controller]) && method_exists($this->controllers[$controller], $action)) {
+			return $this->controllers[$controller]->$action($params);
+		}
+		return false;
+	}
+
+
+	/* Method for transform array to placeholders
 	 *
-	 * @access private
-	 * @param string $name The name of the Chunk. Will parse to name.chunk.tpl by default.
-	 * @param string $suffix The suffix to add to the chunk filename.
-	 * @return modChunk/boolean Returns the modChunk object if found, otherwise
-	 * false.
-	 */
-	private function _getTplChunk($name,$suffix = '.chunk.tpl') {
-		$chunk = false;
-		$f = $this->config['chunksPath'].strtolower($name).$suffix;
-		if (file_exists($f)) {
-			$o = file_get_contents($f);
-			$chunk = $this->modx->newObject('modChunk');
-			$chunk->set('name',$name);
-			$chunk->setContent($o);
+	 * @var array $array With keys and values
+	 * @return array $array Two nested arrays With placeholders and values
+	 * */
+	public function makePlaceholders(array $array = array(), $prefix = '') {
+		$result = array(
+			'pl' => array()
+			,'vl' => array()
+		);
+		foreach ($array as $k => $v) {
+			if (is_array($v)) {
+				$result = array_merge_recursive($result, $this->makePlaceholders($v, $k.'.'));
+			}
+			else {
+				$result['pl'][$prefix.$k] = '[[+'.$prefix.$k.']]';
+				$result['vl'][$prefix.$k] = $v;
+			}
 		}
-		return $chunk;
+		return $result;
 	}
+
+
 
 }
