@@ -6,6 +6,8 @@ interface officeControllerInterface {
 
 	public function getMenu();
 
+	public function getDefaultAction();
+
 }
 
 
@@ -38,6 +40,47 @@ class officeDefaultController implements officeControllerInterface {
 
 	public function getMenu() {
 		return array();
+	}
+
+	public function getDefaultAction() {
+		return 'defaultAction';
+	}
+
+	/* This method returns an error of the cart
+	 *
+	 * @param string $message A lexicon key for error message
+	 * @param array $data.Additional data, for example cart status
+	 * @param array $placeholders Array with placeholders for lexicon entry
+	 *
+	 * @return array|string $response
+	 * */
+	public function error($message = '', $data = array(), $placeholders = array()) {
+		$response = array(
+			'success' => false
+			,'message' => $this->modx->lexicon($message, $placeholders)
+			,'data' => $data
+		);
+
+		return $this->config['json_response'] ? $this->modx->toJSON($response) : $response;
+	}
+
+
+	/* This method returns an success of the cart
+	 *
+	 * @param string $message A lexicon key for success message
+	 * @param array $data.Additional data, for example cart status
+	 * @param array $placeholders Array with placeholders for lexicon entry
+	 *
+	 * @return array|string $response
+	 * */
+	public function success($message = '', $data = array(), $placeholders = array()) {
+		$response = array(
+			'success' => true
+			,'message' => $this->modx->lexicon($message, $placeholders)
+			,'data' => $data
+		);
+
+		return $this->config['json_response'] ? $this->modx->toJSON($response) : $response;
 	}
 
 }

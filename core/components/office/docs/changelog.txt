@@ -1,5 +1,5 @@
 Changelog for Office.
 
-Office 1.0.0
+0.1.0
 ==============
-- Initial release.
+- [Auth] Login\logout

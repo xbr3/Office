@@ -24,6 +24,7 @@ foreach ($tmp as $k => $v) {
 		,'description' => @$v['description']
 		,'snippet' => getSnippetContent($sources['source_core'].'/elements/snippets/snippet.'.$v['file'].'.php')
 		,'static' => 1
+		,'source' => 1
 		,'static_file' => 'core/components/office/elements/snippets/'.$v['file'].'.php'
 	),'',true,true);
 

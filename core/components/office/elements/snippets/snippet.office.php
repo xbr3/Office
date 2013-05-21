@@ -7,14 +7,20 @@ $Office->initialize($modx->context->key);
 
 $output = null;
 
-if ((empty($action) || $action == 'menu') && !empty($Office->controllers)) {
-	/* @var officeDefaultController $controller */
-	foreach ($Office->controllers as $controller) {
-		$output .= $controller->getMenu($scriptProperties);
-	}
+if (!empty($_GET['action'])) {
+	$output = $Office->loadAction(trim($_GET['action']), array_merge($_REQUEST, $scriptProperties));
 }
-else if (!empty($action)) {
-	$output = $Office->loadAction($action, $scriptProperties);
+
+if (empty($output)) {
+	if ((empty($action) || $action == 'menu') && !empty($Office->controllers)) {
+		/* @var officeDefaultController $controller */
+		foreach ($Office->controllers as $controller) {
+			$output .= $controller->getMenu($scriptProperties);
+		}
+	}
+	else if (!empty($action)) {
+		$output = $Office->loadAction($action, $scriptProperties);
+	}
 }
 
 return $output;

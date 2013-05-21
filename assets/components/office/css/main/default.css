@@ -1,0 +1,5 @@
+@import url("./lib/jquery.jgrowl.css");
+
+.office-message-success  {background-color: green !important;}
+.office-message-error  {background-color: brown !important;}
+.office-message-info  {background-color: black !important;}

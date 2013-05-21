@@ -1,12 +1,23 @@
 <?php
-return array();
 
 $chunks = array();
 
 $tmp = array(
-	'tpl.Office.item' => array(
-		'file' => 'item'
-		,'description' => 'Chunk for Items.'
+	'tpl.Office.auth.login' => array(
+		'file' => 'auth.login'
+		,'description' => ''
+	)
+	,'tpl.Office.auth.logout' => array(
+		'file' => 'auth.logout'
+		,'description' => ''
+	)
+	,'tpl.Office.auth.profile' => array(
+		'file' => 'auth.profile'
+		,'description' => ''
+	)
+	,'tpl.Office.auth.activate' => array(
+		'file' => 'auth.activate'
+		,'description' => ''
 	)
 );
 
@@ -18,8 +29,9 @@ foreach ($tmp as $k => $v) {
 		,'name' => $k
 		,'description' => @$v['description']
 		,'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/chunk.'.$v['file'].'.tpl')
-		//,'static' => 1
-		//,'static_file' => 'core/components/office/elements/chunks/chunk.'.$v['file'].'.tpl'
+		,'static' => 1
+		,'source' => 1
+		,'static_file' => 'core/components/office/elements/chunks/chunk.'.$v['file'].'.tpl'
 	),'',true,true);
 
 	$chunks[] = $chunk;

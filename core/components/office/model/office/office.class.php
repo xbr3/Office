@@ -17,7 +17,7 @@ class Office {
 
 		$corePath = $this->modx->getOption('office_core_path', $config, $this->modx->getOption('core_path').'components/office/');
 		$assetsUrl = $this->modx->getOption('office_assets_url', $config, $this->modx->getOption('assets_url').'components/office/');
-		$connectorUrl = $assetsUrl.'connector.php';
+		$actionUrl = $assetsUrl.'action.php';
 
 		$this->config = array_merge(array(
 			'assetsUrl' => $assetsUrl
@@ -25,7 +25,7 @@ class Office {
 			,'jsUrl' => $assetsUrl.'js/'
 			,'imagesUrl' => $assetsUrl.'images/'
 
-			,'connectorUrl' => $connectorUrl
+			,'actionUrl' => $actionUrl
 			,'controllersPath' => $corePath.'controllers/'
 			,'controllers' => ''
 
@@ -43,7 +43,10 @@ class Office {
 		$tmp = explode(',', $this->config['controllers']);
 		$this->config['controllers'] = array();
 		foreach ($tmp as $v) {
-			$this->config['controllers'][] = strtolower(trim($v));
+			$v = strtolower(trim($v));
+			if (!empty($v)) {
+				$this->config['controllers'][] = $v;
+			}
 		}
 	}
 
@@ -65,19 +68,19 @@ class Office {
 			default:
 				if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
 					$config = $this->makePlaceholders($this->config);
-					if ($css = $this->modx->getOption('off_frontend_css')) {
+					if ($css = $this->modx->getOption('office_frontend_css')) {
 						$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
 					}
-					if ($js = trim($this->modx->getOption('off_frontend_js'))) {
+					if ($js = trim($this->modx->getOption('office_frontend_js'))) {
 						$this->modx->regClientStartupScript(str_replace('					', '', '
 						<script type="text/javascript">
 						OfficeConfig = {
-							cssUrl: "'.$this->config['cssUrl'].'web/"
-							,jsUrl: "'.$this->config['jsUrl'].'web/"
-							,imagesUrl: "'.$this->config['imagesUrl'].'web/"
+							cssUrl: "'.$this->config['cssUrl'].'"
+							,jsUrl: "'.$this->config['jsUrl'].'"
+							,imagesUrl: "'.$this->config['imagesUrl'].'"
 							,actionUrl: "'.$this->config['actionUrl'].'"
 							,ctx: "'.$this->modx->context->get('key').'"
-							,close_all_message: "'.$this->modx->lexicon('off_message_close_all').'"
+							,close_all_message: "'.$this->modx->lexicon('office_message_close_all').'"
 						};
 						</script>
 					'), true);
@@ -85,7 +88,7 @@ class Office {
 							$this->modx->regClientScript(str_replace('							', '', '
 							<script type="text/javascript">
 							if(typeof jQuery == "undefined") {
-								document.write("<script src=\"'.$this->config['jsUrl'].'web/lib/jquery.min.js\" type=\"text/javascript\"><\/script>");
+								document.write("<script src=\"'.$this->config['jsUrl'].'main/lib/jquery.min.js\" type=\"text/javascript\"><\/script>");
 							}
 							</script>
 							'), true);
@@ -145,14 +148,37 @@ class Office {
 
 	public function loadAction($action, $params = array()) {
 		list($controller, $action) = explode('/', strtolower(trim($action)));
-		if (!empty($controller) && !isset($this->controllers[$controller])) {
-			$this->loadControllers($controller);
+		if (!empty($controller)) {
+			if (!isset($this->controllers[$controller])) {
+				$this->loadControllers($controller);
+			}
+
+			if (isset($this->controllers[$controller])) {
+				$controller = $this->controllers[$controller];
+				/* @var officeDefaultController $controller */
+				if (empty($action)) {$action = $controller->getDefaultAction();}
+				if (method_exists($controller, $action)) {
+					return $controller->$action($params);
+				}
+			}
 		}
 
-		if (isset($this->controllers[$controller]) && method_exists($this->controllers[$controller], $action)) {
-			return $this->controllers[$controller]->$action($params);
-		}
 		return false;
+	}
+
+
+	/*
+	 * Shorthand for load and run an processor in this component
+	 *
+	 * {@inheritdoc}
+	 * */
+	function runProcessor($action = '', $scriptProperties = array()) {
+		$this->modx->error->errors = $this->modx->error->message = null;
+
+		return $this->modx->runProcessor($action, $scriptProperties, array(
+				'processors_path' => $this->config['processorsPath']
+			)
+		);
 	}
 
 
