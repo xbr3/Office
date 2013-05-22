@@ -14,7 +14,7 @@ set_time_limit(0);
 /* define package */
 define('PKG_NAME','Office');
 define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','0.1.0');
+define('PKG_VERSION','0.2.0');
 define('PKG_RELEASE','beta');
 
 /* define sources */
@@ -76,7 +76,6 @@ if (!is_array($chunks)) {
 }
 
 /* add plugins */
-/*
 $plugins = include $sources['data'].'transport.plugins.php';
 if (!is_array($plugins)) {
 	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in plugins.');
@@ -84,7 +83,6 @@ if (!is_array($plugins)) {
 	$category->addMany($plugins);
 	$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($plugins).' plugins.');
 }
-*/
 
 /* create category vehicle */
 $attr = array(

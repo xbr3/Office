@@ -9,21 +9,9 @@
 $properties = array();
 
 $tmp = array(
-	'tplOuter' => array(
+	'action' => array(
 		'type' => 'textfield'
-		,'value' => 'tpl.Office.outer'
-	)
-	,'tplMenuRow' => array(
-		'type' => 'textfield'
-		,'value' => 'tpl.Office.menu.row'
-	)
-	,'controllers' => array(
-		'type' => 'textfield'
-		,'value' => 'auth'
-	)
-	,'action' => array(
-		'type' => 'textfield'
-		,'value' => 'menu'
+		,'value' => 'Auth'
 	)
 
 );

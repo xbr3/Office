@@ -1,12 +1,8 @@
 <?php
 
 class officeAuthController extends officeDefaultController {
-	public $checkAuth = false;
 
-	function __construct(Office $office, array $config = array()) {
-		$this->modx = & $office->modx;
-		$this->office = & $office;
-
+	public function setDefault($config = array()) {
 		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Auth'])) {
 			$this->config = $_SESSION['Office']['Auth'];
 			$this->config['json_response'] = true;
@@ -28,8 +24,11 @@ class officeAuthController extends officeDefaultController {
 
 			$_SESSION['Office']['Auth'] = $this->config;
 		}
+	}
 
-		$this->modx->lexicon->load('office:auth');
+
+	public function getLanguageTopics() {
+		return array('office:auth');
 	}
 
 

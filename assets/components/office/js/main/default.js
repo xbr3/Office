@@ -16,19 +16,22 @@ Office = {
 };
 
 Office.Message = {
-	success: function(message) {
+	success: function(message, sticky) {
+		if (sticky == null) {sticky = false;}
 		if (message) {
-			$.jGrowl(message, {theme: 'office-message-success'});
+			$.jGrowl(message, {theme: 'office-message-success', sticky: sticky});
 		}
 	}
-	,error: function(message) {
+	,error: function(message, sticky) {
+		if (sticky == null) {sticky = true;}
 		if (message) {
-			$.jGrowl(message, {theme: 'office-message-error', sticky: true});
+			$.jGrowl(message, {theme: 'office-message-error', sticky: sticky});
 		}
 	}
-	,info: function(message) {
+	,info: function(message, sticky) {
+		if (sticky == null) {sticky = false;}
 		if (message) {
-			$.jGrowl(message, {theme: 'office-message-info'});
+			$.jGrowl(message, {theme: 'office-message-info', sticky: sticky});
 		}
 	}
 	,close: function() {

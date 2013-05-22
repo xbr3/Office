@@ -1,55 +1,40 @@
 <?php
 
-interface officeControllerInterface {
-
-	public function initialize($ctx = 'web');
-
-	public function getMenu();
-
-	public function getDefaultAction();
-
-}
-
-
-
-class officeDefaultController implements officeControllerInterface {
+abstract class officeDefaultController {
 	/* @var modX $modx */
 	public $modx;
 	/* @var Office $office */
 	public $office;
-	public $checkAuth = true;
+	public $config;
 
 
-	function __construct(Office $office, array $config = array()) {
+	public function __construct(Office $office, array $config = array()) {
 		$this->modx = & $office->modx;
 		$this->office = & $office;
 
-		$this->config = array_merge(array(
-			'json_response' => false
-		),$config);
-	}
-
-
-	public function initialize($ctx = 'web') {
-		if ($this->checkAuth && !$this->modx->user->isAuthenticated()) {
-			return false;
+		$this->setDefault($config);
+		$topics = $this->getLanguageTopics();
+		foreach ($topics as $topic) {
+			$this->modx->lexicon->load($topic);
 		}
-		return true;
 	}
 
 
-	public function getMenu() {
-		return array();
-	}
+	public function setDefault($config = array()) {$this->config = $config;}
 
-	public function getDefaultAction() {
-		return 'defaultAction';
-	}
+	public function initialize($ctx = 'web') {return true;}
 
-	/* This method returns an error of the cart
+	public function getLanguageTopics() {return array();}
+
+	public function getDefaultAction() {return 'defaultAction';}
+
+	public function defaultAction() {return 'Default action of default controller';}
+
+
+	/* This method returns an error response
 	 *
 	 * @param string $message A lexicon key for error message
-	 * @param array $data.Additional data, for example cart status
+	 * @param array $data Additional data, for example cart status
 	 * @param array $placeholders Array with placeholders for lexicon entry
 	 *
 	 * @return array|string $response
@@ -65,10 +50,10 @@ class officeDefaultController implements officeControllerInterface {
 	}
 
 
-	/* This method returns an success of the cart
+	/* This method returns an success response
 	 *
 	 * @param string $message A lexicon key for success message
-	 * @param array $data.Additional data, for example cart status
+	 * @param array $data Additional data, for example cart status
 	 * @param array $placeholders Array with placeholders for lexicon entry
 	 *
 	 * @return array|string $response

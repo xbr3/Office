@@ -11,14 +11,19 @@ $tmp = array(
 		'file' => 'auth.logout'
 		,'description' => ''
 	)
-	,'tpl.Office.auth.profile' => array(
-		'file' => 'auth.profile'
-		,'description' => ''
-	)
 	,'tpl.Office.auth.activate' => array(
 		'file' => 'auth.activate'
 		,'description' => ''
 	)
+	,'tpl.Office.profile.form' => array(
+		'file' => 'profile.form'
+		,'description' => ''
+	)
+	,'tpl.Office.profile.activate' => array(
+		'file' => 'profile.activate'
+		,'description' => ''
+	)
+
 );
 
 foreach ($tmp as $k => $v) {

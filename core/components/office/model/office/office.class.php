@@ -77,10 +77,9 @@ class Office {
 						OfficeConfig = {
 							cssUrl: "'.$this->config['cssUrl'].'"
 							,jsUrl: "'.$this->config['jsUrl'].'"
-							,imagesUrl: "'.$this->config['imagesUrl'].'"
 							,actionUrl: "'.$this->config['actionUrl'].'"
-							,ctx: "'.$this->modx->context->get('key').'"
 							,close_all_message: "'.$this->modx->lexicon('office_message_close_all').'"
+							,pageId: '.$this->modx->resource->id.'
 						};
 						</script>
 					'), true);
@@ -96,7 +95,7 @@ class Office {
 						}
 					}
 				}
-				$this->loadControllers();
+
 				$this->initialized[$ctx] = true;
 				break;
 		}
@@ -109,56 +108,51 @@ class Office {
 	 * @var string $dir Directory for load controllers
 	 * @return void
 	 * */
-	public function loadControllers($controller = '') {
-		require_once $this->config['controllersPath'] . 'controller.class.php';
+	public function loadController($name) {
+		require_once 'controller.class.php';
 
-		if (!empty($controller) && is_array($controller)) {
-			$controllers = $controller;
-		}
-		else if (!empty($controller)) {
-			$controllers = array($controller);
+		$name = strtolower(trim($name));
+		$file = $this->config['controllersPath'] . $name . '/' . $name.'.class.php';
+		if (!file_exists($file)) {$file = $this->config['controllersPath'] . $name.'.class.php';}
+
+		if (file_exists($file)) {
+			$class = include_once($file);
+			if (!class_exists($class)) {
+				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Wrong controller at '.$file);
+			}
+			/* @var officeDefaultController $controller */
+			else if ($controller = new $class($this, $this->config)) {
+				if ($controller instanceof officeDefaultController && $controller->initialize()) {
+					$this->controllers[strtolower($name)] = $controller;
+				}
+				else {
+					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not load controller '.$file);
+				}
+			}
 		}
 		else {
-			$controllers = $this->config['controllers'];
+			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not find controller '.$file);
 		}
 
-		foreach ($controllers as $name) {
-			$file = $this->config['controllersPath'] . $name . '/' . $name.'.class.php';
-			if (file_exists($file)) {
-				$class = include_once($file);
-				if (!class_exists($class)) {
-					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Wrong controller at '.$file);
-				}
-				/* @var officeDefaultController $controller */
-				else if ($controller = new $class($this, $this->config)) {
-					if ($controller instanceof officeControllerInterface && $controller->initialize()) {
-						$this->controllers[strtolower($name)] = $controller;
-					}
-					else {
-						$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not load controller '.$file);
-					}
-				}
-			}
-			else {
-				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Could not find controller '.$file);
-			}
-		}
 	}
 
 
-	public function loadAction($action, $params = array()) {
-		list($controller, $action) = explode('/', strtolower(trim($action)));
-		if (!empty($controller)) {
-			if (!isset($this->controllers[$controller])) {
-				$this->loadControllers($controller);
+	public function loadAction($action, $scriptProperties = array()) {
+		if (!empty($action)) {
+			list($name, $action) = explode('/', strtolower(trim($action)));
+
+			if (!isset($this->controllers[$name])) {
+				$this->loadController($name);
 			}
 
-			if (isset($this->controllers[$controller])) {
-				$controller = $this->controllers[$controller];
+			if (isset($this->controllers[$name])) {
 				/* @var officeDefaultController $controller */
+				$controller = $this->controllers[$name];
+				$controller->setDefault($scriptProperties);
+
 				if (empty($action)) {$action = $controller->getDefaultAction();}
 				if (method_exists($controller, $action)) {
-					return $controller->$action($params);
+					return $controller->$action($scriptProperties);
 				}
 			}
 		}
@@ -203,7 +197,6 @@ class Office {
 		}
 		return $result;
 	}
-
 
 
 }

@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.2.0
+==============
+- [Profile] Edit user profile and change email with verification.
+
 0.1.0
 ==============
 - [Auth] Login\logout
