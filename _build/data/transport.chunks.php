@@ -23,6 +23,10 @@ $tmp = array(
 		'file' => 'profile.activate'
 		,'description' => ''
 	)
+	,'tpl.Office.extras.outer' => array(
+		'file' => 'extras.outer'
+		,'description' => ''
+	)
 
 );
 

@@ -17,16 +17,18 @@ class Office {
 
 		$corePath = $this->modx->getOption('office_core_path', $config, $this->modx->getOption('core_path').'components/office/');
 		$assetsUrl = $this->modx->getOption('office_assets_url', $config, $this->modx->getOption('assets_url').'components/office/');
-		$actionUrl = $assetsUrl.'action.php';
 
 		$this->config = array_merge(array(
 			'assetsUrl' => $assetsUrl
+			,'assetsPath' => MODX_ASSETS_PATH .'components/office/'
 			,'cssUrl' => $assetsUrl.'css/'
 			,'jsUrl' => $assetsUrl.'js/'
 			,'imagesUrl' => $assetsUrl.'images/'
 
-			,'actionUrl' => $actionUrl
+			,'actionUrl' => $assetsUrl.'action.php'
+			,'minifyUrl' => $assetsUrl.'min.php'
 			,'controllersPath' => $corePath.'controllers/'
+			,'cachePath' => $corePath.'cache/'
 			,'controllers' => ''
 
 			,'corePath' => $corePath
@@ -139,7 +141,7 @@ class Office {
 
 	public function loadAction($action, $scriptProperties = array()) {
 		if (!empty($action)) {
-			list($name, $action) = explode('/', strtolower(trim($action)));
+			@list($name, $action) = explode('/', strtolower(trim($action)));
 
 			if (!isset($this->controllers[$name])) {
 				$this->loadController($name);
@@ -196,6 +198,97 @@ class Office {
 			}
 		}
 		return $result;
+	}
+
+
+	public function Minify($files = array()) {
+		if (empty($files)) {return false;}
+
+		$_GET['f'] = implode(',',$files);
+
+		$min_libPath = MODX_MANAGER_PATH . 'min/lib';
+		@set_include_path($min_libPath . PATH_SEPARATOR . get_include_path());
+
+		if (!class_exists('Minify')) {
+			require_once MODX_MANAGER_PATH . 'min/lib/Minify.php';
+		}
+		if (!class_exists('Minify_Controller_MinApp')) {
+			require_once MODX_MANAGER_PATH . 'min/lib/Minify/Controller/MinApp.php';
+		}
+
+		$min_serveController = new Minify_Controller_MinApp();
+
+		/* attempt to prevent suhosin issues */
+		@ini_set('suhosin.get.max_value_length',4096);
+		$min_serveOptions = array(
+			'quiet' => true
+			,'encodeMethod' => ''
+		);
+		if (!file_exists(MODX_CORE_PATH . 'cache/minify')) {
+			mkdir(MODX_CORE_PATH . 'cache/minify');
+		}
+		Minify::setCache(MODX_CORE_PATH . 'cache/minify');
+
+		if ($minify = Minify::serve($min_serveController, $min_serveOptions)) {
+			if ($minify['success']) {
+				return $minify['content'];
+			}
+		}
+
+		return false;
+	}
+
+
+	public function addClientJs($files = array(), $file = 'main/all') {
+		if ($js = $this->Minify($files)) {
+			$file = 'js/'.$file.'.js';
+			file_put_contents($this->config['assetsPath'] . $file, $js);
+			if (file_exists($this->config['assetsPath'] . $file)) {
+				$this->modx->regClientScript($this->config['assetsUrl'] . $file);
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	public function addClientLexicon($topics = array(), $file = 'main/lexicon') {
+		$topics = array_merge(array('core:default'), $topics);
+
+		foreach($topics as $topic) {
+			$this->modx->lexicon->load($topic);
+		}
+
+		$entries = $this->modx->lexicon->fetch();
+		$lang = '
+			MODx.lang = {';
+		$s = '';
+		while (list($k,$v) = each ($entries)) {
+			$s .= "'$k': ".'"'.strtr($v,array('\\'=>'\\\\',"'"=>"\\'",'"'=>'\\"',"\r"=>'\\r',"\n"=>'\\n','</'=>'<\/')).'",';
+		}
+		$s = trim($s,',');
+		$lang .= $s.'
+			};
+			var _ = function(s,v) {
+				return MODx.lang[s]
+				if (v != null && typeof(v) == "object") {
+					var t = ""+MODx.lang[s];
+					for (var k in v) {
+						t = t.replace("[[+"+k+"]]",v[k]);
+					}
+					return t;
+				} else return MODx.lang[s];
+			}';
+
+		$lang = str_replace('			', '', $lang);
+		$file = 'js/'.$file.'.js';
+		file_put_contents($this->config['assetsPath'] . $file, $lang);
+		if (file_exists($this->config['assetsPath'] . $file)) {
+			$this->modx->regClientScript($this->config['assetsUrl'] . $file);
+			return true;
+		}
+
+		return false;
 	}
 
 

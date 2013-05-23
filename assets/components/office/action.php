@@ -19,6 +19,9 @@ $modx->error->message = null;
 $ctx = !empty($_REQUEST['ctx']) ? $_REQUEST['ctx'] : 'web';
 if ($ctx != 'web') {$modx->switchContext($ctx);}
 
+//ini_set('display_errors',1);
+//ini_set('error_reporting',-1);
+
 /* @var Office $Office */
 define('MODX_ACTION_MODE', true);
 $Office = $modx->getService('office','Office',$modx->getOption('office.core_path',null,$modx->getOption('core_path').'components/office/').'model/office/',array());

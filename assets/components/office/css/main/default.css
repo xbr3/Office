@@ -3,3 +3,10 @@
 .office-message-success  {background-color: green !important;}
 .office-message-error  {background-color: brown !important;}
 .office-message-info  {background-color: black !important;}
+
+form.x-panel-body,
+.x-toolbar .x-form-field {margin: 0;}
+
+.x-panel-body .x-form-field:focus {border: 1px solid #CCCCCC; box-shadow: none;}
+.x-panel-body label {display: inline;}
+.x-menu ul.x-menu-list {margin:0; padding:0;}

@@ -1,5 +1,10 @@
 Changelog for Office.
 
+0.3.0
+==============
+- [Main] Integration of Ext JS from MODX
+- [Extras] Keys grid
+
 0.2.0
 ==============
 - [Profile] Edit user profile and change email with verification.

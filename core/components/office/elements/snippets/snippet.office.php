@@ -1,5 +1,4 @@
 <?php
-
 /* @var Office $Office */
 $Office = $modx->getService('office','Office',$modx->getOption('office_core_path',null,$modx->getOption('core_path').'components/office/').'model/office/',$scriptProperties);
 if (!($Office instanceof Office)) return '';

@@ -12,7 +12,6 @@ Office.Auth = {
 			elem.find('button, a').attr('disabled', false);
 		});
 
-		// Sign up
 		$(document).on('submit', selector + ' form', function(e) {
 			var email = $(this).find('input[name="email"]').val();
 			$.post(OfficeConfig.actionUrl, {action: 'auth/sendlink', email: email}, function(response) {

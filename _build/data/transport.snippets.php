@@ -25,7 +25,7 @@ foreach ($tmp as $k => $v) {
 		,'snippet' => getSnippetContent($sources['source_core'].'/elements/snippets/snippet.'.$v['file'].'.php')
 		,'static' => 1
 		,'source' => 1
-		,'static_file' => 'core/components/office/elements/snippets/'.$v['file'].'.php'
+		,'static_file' => 'core/components/office/elements/snippets/snippet.'.$v['file'].'.php'
 	),'',true,true);
 
 	$properties = include $sources['build'].'properties/properties.'.$v['file'].'.php';

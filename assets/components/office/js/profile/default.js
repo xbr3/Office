@@ -12,7 +12,6 @@ Office.Profile = {
 			elem.find('button, a').attr('disabled', false);
 		});
 
-		// Sign up
 		$(document).on('submit', selector, function(e) {
 			$(this).ajaxSubmit({
 				url: OfficeConfig.actionUrl

@@ -141,7 +141,8 @@ class officeAuthController extends officeDefaultController {
 		/* @var modUser $user */
 		if ($user = $this->modx->getObject('modUser', array('username' => @$data['email']))) {
 			list($hash, $password) = explode(':', @$data['hash']);
-			if ($activate = $user->activatePassword($hash)) {
+			$activate = $user->activatePassword($hash);
+			if ($activate === true) {
 				$user->set('active', 1);
 				$user->save();
 
@@ -159,11 +160,11 @@ class officeAuthController extends officeDefaultController {
 					return $this->modx->lexicon('office_auth_err_login', array('errors' => $errors));
 				}
 
-				$this->modx->sendRedirect($this->modx->makeUrl($this->config['loginResourceId']));
+				return $this->modx->sendRedirect($this->modx->makeUrl($this->config['loginResourceId']));
 			}
 		}
 
-		return false;
+		return $this->modx->sendRedirect($this->modx->makeUrl($this->config['logoutResourceId']));
 	}
 
 
