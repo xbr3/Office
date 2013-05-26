@@ -7,6 +7,8 @@ class extraKeyUpdateProcessor extends modObjectUpdateProcessor {
 	public $classKey = 'extraKey';
 	public $languageTopics = array('extras:default');
 	public $permission = '';
+	public $beforeSaveEvent = 'exOnBeforeKeySave';
+	public $afterSaveEvent = 'exOnKeySave';
 
 	public function initialize() {
 		$primaryKey = $this->getProperty($this->primaryKeyField,false);

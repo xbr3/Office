@@ -4,6 +4,7 @@ Changelog for Office.
 ==============
 - [Auth] Added checking of already send activation link
 - [Auth] Added checking of already logged in users
+- [Extras] Added events in key processors
 
 0.3.0
 ==============

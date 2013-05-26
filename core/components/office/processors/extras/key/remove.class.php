@@ -5,6 +5,8 @@ class extraKeyRemoveProcessor extends modObjectRemoveProcessor  {
 	public $objectType = 'extraKey';
 	public $classKey = 'extraKey';
 	public $languageTopics = array('extras:default');
+	public $beforeRemoveEvent = 'exOnBeforeKeyRemove';
+	public $afterRemoveEvent = 'exOnKeyRemove';
 
 	public function initialize() {
 		$primaryKey = $this->getProperty($this->primaryKeyField,false);

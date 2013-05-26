@@ -7,6 +7,8 @@ class extraKeyCreateProcessor extends modObjectCreateProcessor {
 	public $classKey = 'extraKey';
 	public $languageTopics = array('extras:default');
 	public $permission = '';
+	public $beforeSaveEvent = 'exOnBeforeKeySave';
+	public $afterSaveEvent = 'exOnKeySave';
 
 	public function beforeSet() {
 		$properties = array(
