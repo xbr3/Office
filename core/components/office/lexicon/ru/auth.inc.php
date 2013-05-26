@@ -15,5 +15,7 @@ $_lang['office_auth_err_email'] = 'Неверный email';
 $_lang['office_auth_err_create'] = 'Не могу создать нового пользователя: [[+errors]]';
 $_lang['office_auth_err_send'] = 'Не могу отправить письмо: [[+errors]]';
 $_lang['office_auth_err_login'] = 'Ошибка при входе в систему: [[+errors]]';
+$_lang['office_auth_err_already_sent'] = 'Мы недавно уже отправили вам ссылку - нужно её активировать. Если письма всё еще нет, проверьте папку "Спам", возможно оно там.';
+$_lang['office_auth_err_already_logged'] = 'Вы уже авторизованы в системе.';
 
 $_lang['office_auth_email_send'] = 'Ссылка для входа на сайт отправлена. Проверьте вашу почту.';

@@ -48,6 +48,12 @@ class officeAuthController extends officeDefaultController {
 
 	public function sendLink($data = array()) {
 		$email = trim(@$data['email']);
+		if ($this->modx->user->isAuthenticated()) {
+			return $this->success(
+				$this->modx->lexicon('office_auth_err_already_logged')
+				,array('refresh' => $this->modx->makeUrl($this->config['loginResourceId'], '', '', 'full'))
+			);
+		}
 		if (empty($email)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email_ns'));
 		}
@@ -75,8 +81,16 @@ class officeAuthController extends officeDefaultController {
 		$this->modx->getService('registry', 'registry.modRegistry');
 		$this->modx->registry->getRegister('user', 'registry.modDbRegister');
 		$this->modx->registry->user->connect();
+
+		// checking for already sent activation link
+		$this->modx->registry->user->subscribe('/pwd/reset/' . md5($user->get('username')));
+		$res = $this->modx->registry->user->read(array('poll_limit' => 1, 'remove_read' => false));
+		if (!empty($res)) {
+			return $this->error($this->modx->lexicon('office_auth_err_already_sent'));
+		}
+
 		$this->modx->registry->user->subscribe('/pwd/reset/');
-		$this->modx->registry->user->send('/pwd/reset/', array(md5($user->get('username')) => $activationHash), array('ttl' => 86400));
+		$this->modx->registry->user->send('/pwd/reset/', array(md5($user->get('username')) => $activationHash), array('ttl' => 1800));
 
 		$newPassword = $user->generatePassword();
 

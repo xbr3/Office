@@ -21,6 +21,9 @@ Office.Auth = {
 					Office.Message.success(data.message);
 					$(selector + ' form [name="email"]').val('');
 					$(selector).modal('hide');
+					if (data.data.refresh) {
+						document.location.href = data.data.refresh;
+					}
 				}
 				else {
 					Office.Message.error(data.message);

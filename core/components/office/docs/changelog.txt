@@ -1,5 +1,10 @@
 Changelog for Office.
 
+0.3.1
+==============
+- [Auth] Added checking of already send activation link
+- [Auth] Added checking of already logged in users
+
 0.3.0
 ==============
 - [Main] Integration of Ext JS from MODX
