@@ -15,8 +15,8 @@ class officeAuthController extends officeDefaultController {
 				,'tplActivate' => 'tpl.Office.auth.activate'
 
 				,'groups' => ''
-				,'loginResourceId' => $this->modx->getOption('office_page_id', null, $this->modx->getOption('site_start'))
-				,'logoutResourceId' => $this->modx->getOption('office_page_id', null, $this->modx->getOption('site_start'))
+				,'loginResourceId' => 0
+				,'logoutResourceId' => 0
 				,'rememberme' => true
 				,'loginContext' => $this->modx->context->key
 				,'addContexts' => ''
@@ -98,7 +98,12 @@ class officeAuthController extends officeDefaultController {
 		$user->save();
 
 		/* send activation email */
-		$link = $this->modx->makeUrl($this->config['loginResourceId'], '', array(
+		$link = $this->modx->makeUrl(
+			!empty($this->config['loginResourceId'])
+				? $this->config['loginResourceId']
+				: $this->modx->getOption('office_page_id', null, $this->modx->getOption('site_start'), true)
+			, ''
+			, array(
 				'action' => 'auth/login'
 				,'email' => $email
 				,'hash' => $activationHash.':'.$newPassword
@@ -173,12 +178,11 @@ class officeAuthController extends officeDefaultController {
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] unable to login user '.$data['email'].'. Message: '.$errors);
 					return $this->modx->lexicon('office_auth_err_login', array('errors' => $errors));
 				}
-
-				return $this->modx->sendRedirect($this->modx->makeUrl($this->config['loginResourceId']));
+				return $this->sendRedirect('login');
 			}
 		}
 
-		return $this->modx->sendRedirect($this->modx->makeUrl($this->config['logoutResourceId']));
+		return $this->sendRedirect();
 	}
 
 
@@ -189,7 +193,43 @@ class officeAuthController extends officeDefaultController {
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
 		}
 
-		$this->modx->sendRedirect($this->modx->makeUrl($this->config['logoutResourceId']));
+		return $this->sendRedirect('logout');
+	}
+
+
+	/*
+	 * Reloads site page on various events.
+	 *
+	 * @param string $action The action to do
+	 * @return nothing
+	 * */
+	function sendRedirect($action = '') {
+		if ($action == 'login' && $this->config['loginResourceId']) {
+			$url = $this->modx->makeUrl($this->config['loginResourceId'],'','','full');
+		}
+		else if ($action == 'logout' && $this->config['logoutResourceId']) {
+			$url = $this->modx->makeUrl($this->config['logoutResourceId'],'','','full');
+		}
+		else {
+			$url = $this->config['siteUrl'] . substr($_SERVER['REQUEST_URI'], 1);
+			if ($pos = strpos($url, '?')) {
+				$arr = explode('&',substr($url, $pos+1));
+				$url = substr($url, 0, $pos);
+				if (count($arr) > 1) {
+					foreach ($arr as $k => $v) {
+						if (preg_match('/(action|provider)+/i', $v, $matches)) {
+							unset($arr[$k]);
+						}
+					}
+					if (!empty($arr)) {
+						$url = $url . '?' . implode('&', $arr);
+					}
+				}
+			}
+		}
+
+		$this->modx->sendRedirect($url);
+		return '';
 	}
 
 }
