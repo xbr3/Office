@@ -14,6 +14,9 @@ class officeAuthController extends officeDefaultController {
 				,'tplProfile' => 'tpl.Office.auth.profile'
 				,'tplActivate' => 'tpl.Office.auth.activate'
 
+				,'siteUrl' => $this->modx->getOption('site_url')
+				,'linkTTL' => 600
+
 				,'groups' => ''
 				,'loginResourceId' => 0
 				,'logoutResourceId' => 0
@@ -90,7 +93,7 @@ class officeAuthController extends officeDefaultController {
 		}
 
 		$this->modx->registry->user->subscribe('/pwd/reset/');
-		$this->modx->registry->user->send('/pwd/reset/', array(md5($user->get('username')) => $activationHash), array('ttl' => 1800));
+		$this->modx->registry->user->send('/pwd/reset/', array(md5($user->get('username')) => $activationHash), array('ttl' => $this->config['linkTTL']));
 
 		$newPassword = $user->generatePassword();
 
@@ -205,6 +208,7 @@ class officeAuthController extends officeDefaultController {
 	 * */
 	function sendRedirect($action = '') {
 		if ($action == 'login' && $this->config['loginResourceId']) {
+
 			$url = $this->modx->makeUrl($this->config['loginResourceId'],'','','full');
 		}
 		else if ($action == 'logout' && $this->config['logoutResourceId']) {
@@ -212,12 +216,13 @@ class officeAuthController extends officeDefaultController {
 		}
 		else {
 			$url = $this->config['siteUrl'] . substr($_SERVER['REQUEST_URI'], 1);
-			if ($pos = strpos($url, '?')) {
+			$pos = strpos($url, '?');
+			if ($pos !== false) {
 				$arr = explode('&',substr($url, $pos+1));
 				$url = substr($url, 0, $pos);
 				if (count($arr) > 1) {
 					foreach ($arr as $k => $v) {
-						if (preg_match('/(action|provider)+/i', $v, $matches)) {
+						if (preg_match('/(action|provider|email|hash)+/i', $v, $matches)) {
 							unset($arr[$k]);
 						}
 					}
