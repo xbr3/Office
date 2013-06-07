@@ -38,7 +38,7 @@ foreach ($tmp as $k => $v) {
 		,'name' => $k
 		,'description' => @$v['description']
 		,'snippet' => file_get_contents($sources['source_core'].'/elements/chunks/chunk.'.$v['file'].'.tpl')
-		,'static' => 1
+		,'static' => BUILD_CHUNK_STATIC
 		,'source' => 1
 		,'static_file' => 'core/components/office/elements/chunks/chunk.'.$v['file'].'.tpl'
 	),'',true,true);

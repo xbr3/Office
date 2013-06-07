@@ -21,7 +21,7 @@ foreach ($tmp as $k => $v) {
 		,'category' => 0
 		,'description' => @$v['description']
 		,'plugincode' => getSnippetContent($sources['source_core'].'/elements/plugins/plugin.'.$v['file'].'.php')
-		,'static' => 1
+		,'static' => BUILD_PLUGIN_STATIC
 		,'source' => 1
 		,'static_file' => 'core/components/extras/elements/plugins/plugin.'.$v['file'].'.php'
 	),'',true,true);

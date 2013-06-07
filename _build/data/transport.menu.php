@@ -1,7 +1,7 @@
 <?php
-return array();
-
 $menus = array();
+
+return $menus;
 
 $tmp = array(
 	'office' => array(

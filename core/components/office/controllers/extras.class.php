@@ -34,40 +34,17 @@ class officeExtrasKeysController extends officeDefaultController {
 			return $this->modx->sendUnauthorizedPage();
 		}
 		else {
-			$this->modx->regClientCSS($this->office->config['cssUrl'] . 'main/lib/ext-all-notheme.css');
-			$this->modx->regClientCSS($this->office->config['cssUrl'] . 'main/lib/xtheme-modx.css');
 			$this->modx->regClientCSS($this->office->config['cssUrl'] . 'extras/default.css');
-
-			$this->office->addClientJs(array(
-				'/manager/assets/ext3/adapter/jquery/ext-jquery-adapter.js'
-				,'/manager/assets/ext3/ext-all.js'
-			), 'main/ext');
-
-			$this->office->addClientJs(array(
-				'/manager/assets/modext/core/modx.js'
-			), 'main/modx');
-
+			$this->office->addClientExtJS();
 
 			$this->office->addClientLexicon(array(
 				'extras:default'
 			), 'extras/lexicon');
 
 			$this->office->addClientJs(array(
-				'/manager/assets/modext/core/modx.localization.js'
-				,'/manager/assets/modext/util/utilities.js'
-				,'/manager/assets/modext/core/modx.component.js'
-				,'/manager/assets/modext/widgets/core/modx.panel.js'
-				,'/manager/assets/modext/widgets/core/modx.tabs.js'
-				,'/manager/assets/modext/widgets/core/modx.window.js'
-				,'/manager/assets/modext/widgets/core/modx.tree.js'
-				,'/manager/assets/modext/widgets/core/modx.combo.js'
-				,'/manager/assets/modext/widgets/core/modx.grid.js'
-				,'/assets/components/extras/js/mgr/extras.js'
+				'/assets/components/extras/js/mgr/extras.js'
 				,'/assets/components/extras/js/misc/extras.combo.js'
-			), 'main/widgets');
-
-			$this->office->addClientJs(array(
-				$this->office->config['jsUrl'] . 'extras/keys.grid.js'
+				,$this->office->config['jsUrl'] . 'extras/keys.grid.js'
 				,$this->office->config['jsUrl'] . 'extras/default.js'
 			), 'extras/all');
 

@@ -23,7 +23,7 @@ foreach ($tmp as $k => $v) {
 		,'name' => $k
 		,'description' => @$v['description']
 		,'snippet' => getSnippetContent($sources['source_core'].'/elements/snippets/snippet.'.$v['file'].'.php')
-		,'static' => 1
+		,'static' => BUILD_SNIPPET_STATIC
 		,'source' => 1
 		,'static_file' => 'core/components/office/elements/snippets/snippet.'.$v['file'].'.php'
 	),'',true,true);

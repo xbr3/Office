@@ -11,11 +11,7 @@ $mtime = $mtime[1] + $mtime[0];
 $tstart = $mtime;
 set_time_limit(0);
 
-/* define package */
-define('PKG_NAME','Office');
-define('PKG_NAME_LOWER',strtolower(PKG_NAME));
-define('PKG_VERSION','0.3.2');
-define('PKG_RELEASE','beta');
+require_once 'build.config.php';
 
 /* define sources */
 $root = dirname(dirname(__FILE__)).'/';
@@ -35,8 +31,6 @@ $sources = array(
 );
 unset($root);
 
-/* override with your own defines here (see build.config.sample.php) */
-require_once $sources['build'] . '/build.config.php';
 require_once MODX_CORE_PATH . 'model/modx/modx.class.php';
 require_once $sources['build'] . '/includes/functions.php';
 
@@ -52,7 +46,121 @@ $builder->createPackage(PKG_NAME_LOWER,PKG_VERSION,PKG_RELEASE);
 $builder->registerNamespace(PKG_NAME_LOWER,false,true,'{core_path}components/'.PKG_NAME_LOWER.'/');
 $modx->log(modX::LOG_LEVEL_INFO,'Created Transport Package and Namespace.');
 
+
+/* load system settings */
+$settings = include $sources['data'].'transport.settings.php';
+if (!is_array($settings)) {
+	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in settings.');
+} else {
+	$attributes= array(
+		xPDOTransport::UNIQUE_KEY => 'key',
+		xPDOTransport::PRESERVE_KEYS => true,
+		xPDOTransport::UPDATE_OBJECT => BUILD_SETTING_UPDATE,
+	);
+	foreach ($settings as $setting) {
+		$vehicle = $builder->createVehicle($setting,$attributes);
+		$builder->putVehicle($vehicle);
+	}
+	$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($settings).' System Settings.');
+}
+unset($settings,$setting,$attributes);
+
+/* load plugins events */
+/*
+$events = include $sources['data'].'transport.events.php';
+if (!is_array($events)) {
+	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in events.');
+} else {
+	$attributes = array (
+		xPDOTransport::PRESERVE_KEYS => true,
+		xPDOTransport::UPDATE_OBJECT => BUILD_EVENT_UPDATE,
+	);
+	foreach ($events as $event) {
+		$vehicle = $builder->createVehicle($event,$attributes);
+		$builder->putVehicle($vehicle);
+	}
+	$modx->log(xPDO::LOG_LEVEL_INFO,'Packaged in '.count($events).' Plugins events.');
+}
+unset ($events, $event, $attributes);
+*/
+
+/* package in default access policy */
+/*
+$attributes = array (
+	xPDOTransport::PRESERVE_KEYS => false,
+	xPDOTransport::UNIQUE_KEY => array('name'),
+	xPDOTransport::UPDATE_OBJECT => BUILD_POLICY_UPDATE,
+);
+$policies = include $sources['data'].'transport.policies.php';
+if (!is_array($policies)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding policies failed.'); }
+foreach ($policies as $policy) {
+	$vehicle = $builder->createVehicle($policy,$attributes);
+	$builder->putVehicle($vehicle);
+}
+$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($policies).' Access Policies.'); flush();
+unset($policies,$policy,$attributes);
+*/
+
+/* package in default access policy templates */
+/*
+$templates = include dirname(__FILE__).'/data/transport.policytemplates.php';
+$attributes = array (
+	xPDOTransport::PRESERVE_KEYS => false,
+	xPDOTransport::UNIQUE_KEY => array('name'),
+	xPDOTransport::UPDATE_OBJECT => BUILD_POLICY_TEMPLATE_UPDATE,
+	xPDOTransport::RELATED_OBJECTS => true,
+	xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
+		'Permissions' => array (
+			xPDOTransport::PRESERVE_KEYS => false,
+			xPDOTransport::UPDATE_OBJECT => BUILD_PERMISSION_UPDATE,
+			xPDOTransport::UNIQUE_KEY => array ('template','name'),
+		),
+	)
+);
+if (is_array($templates)) {
+	foreach ($templates as $template) {
+		$vehicle = $builder->createVehicle($template,$attributes);
+		$builder->putVehicle($vehicle);
+	}
+	$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($templates).' Access Policy Templates.'); flush();
+} else {
+	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in Access Policy Templates.');
+}
+unset ($templates,$template,$attributes);
+*/
+
+/* load menus */
+$menus = include $sources['data'].'transport.menu.php';
+$attributes = array (
+	xPDOTransport::PRESERVE_KEYS => true,
+	xPDOTransport::UPDATE_OBJECT => BUILD_MENU_UPDATE,
+	xPDOTransport::UNIQUE_KEY => 'text',
+	xPDOTransport::RELATED_OBJECTS => true,
+	xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
+		'Action' => array (
+			xPDOTransport::PRESERVE_KEYS => false,
+			xPDOTransport::UPDATE_OBJECT => BUILD_ACTION_UPDATE,
+			xPDOTransport::UNIQUE_KEY => array ('namespace','controller'),
+		),
+	),
+);
+if (is_array($menus)) {
+	foreach ($menus as $menu) {
+		$vehicle = $builder->createVehicle($menu,$attributes);
+		$builder->putVehicle($vehicle);
+		/* @var modMenu $menu */
+		$modx->log(modX::LOG_LEVEL_INFO,'Packaged in menu "'.$menu->get('text').'".');
+	}
+}
+else {
+	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in menu.');
+}
+unset($vehicle,$menus,$menu,$attributes);
+
+
 /* create category */
+$modx->log(xPDO::LOG_LEVEL_INFO,'Created category.');
+/* @var modCategory $category */
 $category= $modx->newObject('modCategory');
 $category->set('id',1);
 $category->set('category',PKG_NAME);
@@ -91,193 +199,62 @@ $attr = array(
 	xPDOTransport::UPDATE_OBJECT => true,
 	xPDOTransport::RELATED_OBJECTS => true,
 	xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
-		/*
-		'Children' => array(
-			xPDOTransport::PRESERVE_KEYS => false,
-			xPDOTransport::UPDATE_OBJECT => true,
-			xPDOTransport::UNIQUE_KEY => 'category',
-			xPDOTransport::RELATED_OBJECTS => true,
-			xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
-				'Snippets' => array(
-					xPDOTransport::PRESERVE_KEYS => false,
-					xPDOTransport::UPDATE_OBJECT => true,
-					xPDOTransport::UNIQUE_KEY => 'name',
-				),
-				'Chunks' => array(
-					xPDOTransport::PRESERVE_KEYS => false,
-					xPDOTransport::UPDATE_OBJECT => false,
-					xPDOTransport::UNIQUE_KEY => 'name',
-				),
-			),
-		),
-		*/
 		'Snippets' => array(
 			xPDOTransport::PRESERVE_KEYS => false,
-			xPDOTransport::UPDATE_OBJECT => true,
+			xPDOTransport::UPDATE_OBJECT => BUILD_SNIPPET_UPDATE,
 			xPDOTransport::UNIQUE_KEY => 'name',
 		),
 		'Chunks' => array (
 			xPDOTransport::PRESERVE_KEYS => false,
-			xPDOTransport::UPDATE_OBJECT => false,
+			xPDOTransport::UPDATE_OBJECT => BUILD_CHUNK_UPDATE,
 			xPDOTransport::UNIQUE_KEY => 'name',
 		),
 		'Plugins' => array (
 			xPDOTransport::PRESERVE_KEYS => false,
-			xPDOTransport::UPDATE_OBJECT => true,
+			xPDOTransport::UPDATE_OBJECT => BUILD_PLUGIN_UPDATE,
 			xPDOTransport::UNIQUE_KEY => 'name',
 		),
 		'PluginEvents' => array (
 			xPDOTransport::PRESERVE_KEYS => true,
-			xPDOTransport::UPDATE_OBJECT => true,
+			xPDOTransport::UPDATE_OBJECT => BUILD_EVENT_UPDATE,
 			xPDOTransport::UNIQUE_KEY => array('pluginid','event'),
 		),
 	),
 );
-
-/* load plugins events */
-/*
-$events = include $sources['data'].'transport.events.php';
-if (!is_array($events)) {
-	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in events.');
-} else {
-	$attributes = array (
-		xPDOTransport::PRESERVE_KEYS => true,
-		xPDOTransport::UPDATE_OBJECT => true,
-	);
-	foreach ($events as $event) {
-		$vehicle = $builder->createVehicle($event,$attributes);
-		$builder->putVehicle($vehicle);
-	}
-	$modx->log(xPDO::LOG_LEVEL_INFO,'Packaged in '.count($events).' plugins events.');
-}
-unset ($events, $event, $attributes);
-*/
-
-/* load system settings */
-$settings = include $sources['data'].'transport.settings.php';
-if (!is_array($settings)) {
-	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in settings.');
-} else {
-	$attributes= array(
-		xPDOTransport::UNIQUE_KEY => 'key'
-		,xPDOTransport::PRESERVE_KEYS => true
-		,xPDOTransport::UPDATE_OBJECT => false
-	);
-	foreach ($settings as $setting) {
-		$vehicle = $builder->createVehicle($setting,$attributes);
-		$builder->putVehicle($vehicle);
-	}
-	$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($settings).' System Settings.');
-}
-unset($settings,$setting,$attributes);
-
-/* package in default access policy */
-/*
-$attributes = array (
-	xPDOTransport::PRESERVE_KEYS => false,
-	xPDOTransport::UNIQUE_KEY => array('name'),
-	xPDOTransport::UPDATE_OBJECT => true,
-);
-$policies = include $sources['data'].'transport.policies.php';
-if (!is_array($policies)) { $modx->log(modX::LOG_LEVEL_FATAL,'Adding policies failed.'); }
-foreach ($policies as $policy) {
-	$vehicle = $builder->createVehicle($policy,$attributes);
-	$builder->putVehicle($vehicle);
-}
-$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($policies).' Access Policies.'); flush();
-unset($policies,$policy,$attributes);
-*/
-/* package in default access policy template */
-/*
-$templates = include dirname(__FILE__).'/data/transport.policytemplates.php';
-$attributes = array (
-	xPDOTransport::PRESERVE_KEYS => false,
-	xPDOTransport::UNIQUE_KEY => array('name'),
-	xPDOTransport::UPDATE_OBJECT => true,
-	xPDOTransport::RELATED_OBJECTS => true,
-	xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
-		'Permissions' => array (
-			xPDOTransport::PRESERVE_KEYS => false
-			,xPDOTransport::UPDATE_OBJECT => true
-			,xPDOTransport::UNIQUE_KEY => array ('template','name')
-		),
-	)
-);
-if (is_array($templates)) {
-	foreach ($templates as $template) {
-		$vehicle = $builder->createVehicle($template,$attributes);
-		$builder->putVehicle($vehicle);
-	}
-	$modx->log(modX::LOG_LEVEL_INFO,'Packaged in '.count($templates).' Access Policy Templates.'); flush();
-} else {
-	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in Access Policy Templates.');
-}
-unset ($templates,$template,$attributes);
-*/
-
-/* load menus */
-$menus = include $sources['data'].'transport.menu.php';
-$attributes = array (
-	xPDOTransport::PRESERVE_KEYS => true
-	,xPDOTransport::UPDATE_OBJECT => false
-	,xPDOTransport::UNIQUE_KEY => 'text'
-	,xPDOTransport::RELATED_OBJECTS => true
-	,xPDOTransport::RELATED_OBJECT_ATTRIBUTES => array (
-		'Action' => array (
-			xPDOTransport::PRESERVE_KEYS => false
-			,xPDOTransport::UPDATE_OBJECT => false
-			,xPDOTransport::UNIQUE_KEY => array ('namespace','controller')
-		)
-	)
-);
-if (is_array($menus)) {
-	/* @var modMenu $menu */
-	foreach ($menus as $menu) {
-		$vehicle = $builder->createVehicle($menu,$attributes);
-		$builder->putVehicle($vehicle);
-		$modx->log(modX::LOG_LEVEL_INFO,'Packaged in menu "'.$menu->get('text').'".');
-	}
-}
-else {
-	$modx->log(modX::LOG_LEVEL_ERROR,'Could not package in menu.');
-}
-unset($vehicle,$menus,$menu,$attributes);
-
-/* now pack in the license file, readme and setup options */
 $vehicle = $builder->createVehicle($category,$attr);
-$modx->log(modX::LOG_LEVEL_INFO,'Adding resolvers to category...');
-$vehicle->resolve('file',array(
-	'source' => $sources['source_assets']
-	,'target' => "return MODX_ASSETS_PATH . 'components/';"
-));
-$vehicle->resolve('file',array(
-	'source' => $sources['source_core']
-	,'target' => "return MODX_CORE_PATH . 'components/';"
-));
-$vehicle->resolve('php',array(
-	'source' => $sources['resolvers'] . 'resolve.tables.php'
-));
-/*
-$vehicle->resolve('php',array(
-	'source' => $sources['resolvers'] . 'resolve.policy.php'
-));
-$vehicle->resolve('php',array(
-	'source' => $sources['resolvers'] . 'resolve.setup.php'
-));
-*/
 
-$modx->log(modX::LOG_LEVEL_INFO,'Packaged in resolvers.'); flush();
+/* now pack in resolvers */
+$vehicle->resolve('file',array(
+	'source' => $sources['source_assets'],
+	'target' => "return MODX_ASSETS_PATH . 'components/';",
+));
+$vehicle->resolve('file',array(
+	'source' => $sources['source_core'],
+	'target' => "return MODX_CORE_PATH . 'components/';",
+));
+
+$resolvers = array('tables');
+foreach ($resolvers as $resolver) {
+	if ($vehicle->resolve('php', array('source' => $sources['resolvers'] . 'resolve.'.$resolver.'.php'))) {
+		$modx->log(modX::LOG_LEVEL_INFO,'Added resolver "'.$resolver.'" to category.');
+	}
+	else {
+		$modx->log(modX::LOG_LEVEL_INFO,'Could not add resolver "'.$resolver.'" to category.');
+	}
+}
+
+flush();
 $builder->putVehicle($vehicle);
 
+/* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes(array(
 	'changelog' => file_get_contents($sources['docs'] . 'changelog.txt')
 	,'license' => file_get_contents($sources['docs'] . 'license.txt')
 	,'readme' => file_get_contents($sources['docs'] . 'readme.txt')
 	/*
 	,'setup-options' => array(
-		'source' => $sources['build'].'setup.options.php'
-	)
-	*/
+		'source' => $sources['build'].'setup.options.php',
+	),*/
 ));
 $modx->log(modX::LOG_LEVEL_INFO,'Added package attributes and setup options.');
 

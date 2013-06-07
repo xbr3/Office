@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.4.0
+==============
+- [Main] Main class improvements. Added method addClientExtJS
+
 0.3.2
 ==============
 - [Auth] Improved redirect on login\logout

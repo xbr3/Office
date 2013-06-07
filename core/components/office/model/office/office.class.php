@@ -12,6 +12,10 @@ class Office {
 	public $controllers = array();
 
 
+	/**
+	 * @param modX $modx
+	 * @param array $config
+	 */
 	function __construct(modX &$modx,array $config = array()) {
 		$this->modx =& $modx;
 
@@ -29,7 +33,6 @@ class Office {
 			,'minifyUrl' => $assetsUrl.'min.php'
 			,'controllersPath' => $corePath.'controllers/'
 			,'cachePath' => $corePath.'cache/'
-			,'controllers' => ''
 
 			,'corePath' => $corePath
 			,'modelPath' => $corePath.'model/'
@@ -42,22 +45,16 @@ class Office {
 
 		//$this->modx->addPackage('office', $this->config['modelPath']);
 		$this->modx->lexicon->load('office:default');
-		$tmp = explode(',', $this->config['controllers']);
-		$this->config['controllers'] = array();
-		foreach ($tmp as $v) {
-			$v = strtolower(trim($v));
-			if (!empty($v)) {
-				$this->config['controllers'][] = $v;
-			}
-		}
 	}
 
 
 	/**
 	 * Initializes Office into different contexts.
 	 *
-	 * @access public
-	 * @param string $ctx The context to load. Defaults to web.
+	 * @param string $ctx
+	 * @param array $scriptProperties
+	 *
+	 * @return bool
 	 */
 	public function initialize($ctx = 'web', $scriptProperties = array()) {
 		$this->config = array_merge($this->config, $scriptProperties);
@@ -105,11 +102,13 @@ class Office {
 	}
 
 
-	/* Method loads custom controllers
+	/**
+	 * Method loads custom controllers
 	 *
 	 * @var string $dir Directory for load controllers
+	 *
 	 * @return void
-	 * */
+	 */
 	public function loadController($name) {
 		require_once 'controller.class.php';
 
@@ -139,6 +138,14 @@ class Office {
 	}
 
 
+	/**
+	 * Loads given action, if exists, and transfers work to it
+	 *
+	 * @param $action
+	 * @param array $scriptProperties
+	 *
+	 * @return bool
+	 */
 	public function loadAction($action, $scriptProperties = array()) {
 		if (!empty($action)) {
 			@list($name, $action) = explode('/', strtolower(trim($action)));
@@ -163,11 +170,14 @@ class Office {
 	}
 
 
-	/*
+	/**
 	 * Shorthand for load and run an processor in this component
 	 *
-	 * {@inheritdoc}
-	 * */
+	 * @param string $action
+	 * @param array $scriptProperties
+	 *
+	 * @return mixed
+	 */
 	function runProcessor($action = '', $scriptProperties = array()) {
 		$this->modx->error->errors = $this->modx->error->message = null;
 
@@ -178,11 +188,13 @@ class Office {
 	}
 
 
-	/* Method for transform array to placeholders
+	/**
+	 * Method for transform array to placeholders
 	 *
 	 * @var array $array With keys and values
-	 * @return array $array Two nested arrays With placeholders and values
-	 * */
+	 *
+	 * @return array $array Two nested arrays with placeholders and values
+	 */
 	public function makePlaceholders(array $array = array(), $prefix = '') {
 		$result = array(
 			'pl' => array()
@@ -201,6 +213,13 @@ class Office {
 	}
 
 
+	/**
+	 * Merges and minimizes given scripts or css and returns raw content
+	 *
+	 * @param array $files
+	 *
+	 * @return mixed|bool
+	 */
 	public function Minify($files = array()) {
 		if (empty($files)) {return false;}
 
@@ -239,6 +258,14 @@ class Office {
 	}
 
 
+	/**
+	 * Merges, minimizes and registers javascript for use in controllers
+	 *
+	 * @param array $files
+	 * @param string $file
+	 *
+	 * @return bool
+	 */
 	public function addClientJs($files = array(), $file = 'main/all') {
 		if ($js = $this->Minify($files)) {
 			$file = 'js/'.$file.'.js';
@@ -252,6 +279,35 @@ class Office {
 	}
 
 
+	/**
+	 * Merges, minimizes and registers css for use in controllers
+	 *
+	 * @param array $files
+	 * @param string $file
+	 *
+	 * @return bool
+	 */
+	public function addClientCss($files = array(), $file = 'main/all') {
+		if ($css = $this->Minify($files)) {
+			$file = 'css/'.$file.'.css';
+			file_put_contents($this->config['assetsPath'] . $file, $css);
+			if (file_exists($this->config['assetsPath'] . $file)) {
+				$this->modx->regClientScript($this->config['assetsUrl'] . $file);
+				return true;
+			}
+		}
+		return false;
+	}
+
+
+	/**
+	 * Registers lexicon entries for use in controllers
+	 *
+	 * @param array $topics
+	 * @param string $file
+	 *
+	 * @return bool
+	 */
 	public function addClientLexicon($topics = array(), $file = 'main/lexicon') {
 		$topics = array_merge(array('core:default'), $topics);
 
@@ -291,5 +347,36 @@ class Office {
 		return false;
 	}
 
+
+	/**
+	 * Registers Ext JS on the frontend for use in controllers
+	 *
+	 * @return void
+	 */
+	public function addClientExtJS() {
+		$this->modx->regClientCSS($this->config['cssUrl'] . 'main/lib/ext-all-notheme.css');
+		$this->modx->regClientCSS($this->config['cssUrl'] . 'main/lib/xtheme-modx.css');
+
+		$this->addClientJs(array(
+			'/manager/assets/ext3/adapter/jquery/ext-jquery-adapter.js'
+			,'/manager/assets/ext3/ext-all.js'
+		), 'main/ext');
+
+		$this->addClientJs(array(
+			'/manager/assets/modext/core/modx.js'
+		), 'main/modx');
+
+		$this->addClientJs(array(
+			'/manager/assets/modext/core/modx.localization.js'
+			,'/manager/assets/modext/util/utilities.js'
+			,'/manager/assets/modext/core/modx.component.js'
+			,'/manager/assets/modext/widgets/core/modx.panel.js'
+			,'/manager/assets/modext/widgets/core/modx.tabs.js'
+			,'/manager/assets/modext/widgets/core/modx.window.js'
+			,'/manager/assets/modext/widgets/core/modx.tree.js'
+			,'/manager/assets/modext/widgets/core/modx.combo.js'
+			,'/manager/assets/modext/widgets/core/modx.grid.js'
+		), 'main/widgets');
+	}
 
 }
