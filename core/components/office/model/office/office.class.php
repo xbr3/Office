@@ -43,7 +43,7 @@ class Office {
 			,'processorsPath' => $corePath.'processors/'
 		), $config);
 
-		//$this->modx->addPackage('office', $this->config['modelPath']);
+		$this->modx->addPackage('office', $this->config['modelPath']);
 		$this->modx->lexicon->load('office:default');
 	}
 

@@ -14,8 +14,7 @@ $_lang['office_profile_reset'] = 'Сброс';
 
 $_lang['office_profile_email_subject'] = 'Проверка email';
 
-$_lang['office_err_auth'] = 'Только для авторизованных пользователей!';
-$_lang['office_err_update'] = 'Ошибка при обновлении профиля';
-$_lang['office_msg_save'] = 'Изменения были успешно сохранены';
-$_lang['office_msg_save_email'] = 'Изменения были успешно сохранены. Ваш email не изменится, пока вы его не подтвердите.';
-$_lang['office_msg_save_noemail'] = 'Изменения были успешно сохранены, но мы не смогли отправить ссылку на новый email: [[+errors]].';
+$_lang['office_profile_err_update'] = 'Ошибка при обновлении профиля';
+$_lang['office_profile_msg_save'] = 'Изменения были успешно сохранены';
+$_lang['office_profile_msg_save_email'] = 'Изменения были успешно сохранены. Ваш email не изменится, пока вы его не подтвердите.';
+$_lang['office_profile_msg_save_noemail'] = 'Изменения были успешно сохранены, но мы не смогли отправить ссылку на новый email: [[+errors]].';

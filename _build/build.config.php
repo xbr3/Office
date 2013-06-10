@@ -3,7 +3,7 @@
 define('PKG_NAME', 'Office');
 define('PKG_NAME_LOWER', strtolower(PKG_NAME));
 
-define('PKG_VERSION', '0.4.0');
+define('PKG_VERSION', '0.5.0');
 define('PKG_RELEASE', 'beta');
 
 

@@ -28,6 +28,7 @@ $Office = $modx->getService('office','Office',$modx->getOption('office.core_path
 if ($modx->error->hasError() || !($Office instanceof Office)) {die('Error');}
 $Office->initialize($ctx);
 
+unset($_REQUEST['action']);
 if (!$response = $Office->loadAction($action, $_REQUEST)) {
 	$response = $modx->toJSON(array(
 		'success' => false

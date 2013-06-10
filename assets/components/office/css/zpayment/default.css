@@ -1,0 +1,11 @@
+#office-zpayment-form-create .header, #office-zpayment-form-activate .header {
+	padding: 20px 0 20px 100px;
+}
+
+#office-zpayment-form-create .footer, #office-zpayment-form-activate .footer {
+	padding: 10px 0 10px 100px;
+}
+
+#office-zpayment-form-create .red, #office-zpayment-form-activate .red {
+	color: red;
+}

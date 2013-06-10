@@ -15,6 +15,7 @@ $tmp = array(
 		'file' => 'auth.activate'
 		,'description' => ''
 	)
+
 	,'tpl.Office.profile.form' => array(
 		'file' => 'profile.form'
 		,'description' => ''
@@ -23,8 +24,18 @@ $tmp = array(
 		'file' => 'profile.activate'
 		,'description' => ''
 	)
+
 	,'tpl.Office.extras.outer' => array(
 		'file' => 'extras.outer'
+		,'description' => ''
+	)
+
+	,'tpl.Office.zp.register' => array(
+		'file' => 'zp.register'
+		,'description' => ''
+	)
+	,'tpl.Office.zp.operations' => array(
+		'file' => 'zp.operations'
 		,'description' => ''
 	)
 

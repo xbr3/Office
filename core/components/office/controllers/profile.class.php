@@ -80,18 +80,18 @@ class officeProfileController extends officeDefaultController {
 				$tmp2 = explode(':',$v);
 				$errors[$tmp2[0]] = $tmp2[1];
 			}
-			return $this->error($this->modx->lexicon('office_err_update'), $errors);
+			return $this->error($this->modx->lexicon('office_profile_err_update'), $errors);
 		}
 
 		if ($changeEmail) {
 			$page_id = !empty($data['pageId']) ? $data['pageId'] : $this->modx->getOption('office_page_id');
 			$change = $this->changeEmail($new_email, $page_id);
 			return ($change !== true)
-				? $this->success($this->modx->lexicon('office_msg_save_noemail', array('errors', implode(',', $change))))
-				: $this->success($this->modx->lexicon('office_msg_save_email'));
+				? $this->success($this->modx->lexicon('office_profile_msg_save_noemail', array('errors', implode(',', $change))))
+				: $this->success($this->modx->lexicon('office_profile_msg_save_email'));
 		}
 		else {
-			return $this->success($this->modx->lexicon('office_msg_save'));
+			return $this->success($this->modx->lexicon('office_profile_msg_save'));
 		}
 	}
 

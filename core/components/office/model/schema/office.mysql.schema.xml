@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<model package="office" baseClass="xPDOObject" platform="mysql" defaultEngine="MyISAM" phpdoc-package="office" phpdoc-subpackage="" version="1.1">
+
+	<object class="zpUser" table="office_zp_users" extends="xPDOSimpleObject">
+		<field key="internalKey" dbtype="int" precision="10" phptype="integer" null="false" index="unique" />
+		<field key="zp" dbtype="char" precision="10" phptype="string" null="false" default="" />
+		<field key="active" dbtype="tinyint" precision="1" attributes="unsigned" phptype="boolean" null="false" default="0" index="index" />
+		<field key="f_name" dbtype="varchar" precision="64" phptype="string" null="false" default="" />
+		<field key="s_name" dbtype="varchar" precision="64" phptype="string" null="false" default="" />
+		<field key="m_name" dbtype="varchar" precision="64" phptype="string" null="false" default="" />
+		<field key="email" dbtype="varchar" precision="128" phptype="string" null="false" default="" />
+		<field key="phone" dbtype="varchar" precision="15" phptype="string" null="false" default="" />
+		<field key="createdon" dbtype="datetime" phptype="datetime" />
+		<field key="activatedon" dbtype="datetime" phptype="datetime" />
+		<field key="balance" dbtype="decimal" precision="12,2" phptype="float" null="false" default="0" />
+
+		<index alias="internalKey" name="internalKey" primary="false" unique="true" type="BTREE">
+			<column key="internalKey" length="" collation="A" null="false" />
+		</index>
+		<index alias="active" name="active" primary="false" unique="false" type="BTREE">
+			<column key="active" length="" collation="A" null="false" />
+		</index>
+
+		<aggregate alias="User" class="modUser" local="internalKey" foreign="id" cardinality="one" owner="foreign" />
+	</object>
+
+</model>

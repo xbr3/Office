@@ -7,4 +7,5 @@ $_lang['office'] = 'Office';
 $_lang['office_message_close_all'] = 'close all';
 
 $_lang['office_err_action_nf'] = 'Could not find specified action';
+$_lang['office_err_auth'] = 'Authorization required';
 
