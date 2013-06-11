@@ -58,7 +58,7 @@
 	<div class="control-group">
 		<label class="control-label">[[%office_zp_code]]<sup class="red">*</sup></label>
 		<div class="controls">
-			<input type="text" name="code" value="" placeholder="[[%office_zp_code]]" maxlength="4" />
+			<input type="text" name="code" value="" placeholder="[[%office_zp_code]]" maxlength="32" />
 			<span class="help-inline message"></span>
 			<br/><small>[[%office_zp_code_desc]]</small>
 		</div>

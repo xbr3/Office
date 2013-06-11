@@ -34,7 +34,7 @@ Office.ZPayment = {
 						Office.Message.error(data.message, false);
 					}
 
-					if (data.reload) {
+					if (data.data.reload) {
 						document.location = document.location;
 					}
 					else {

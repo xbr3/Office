@@ -14,6 +14,7 @@ class officeZPaymentController extends officeDefaultController {
 				,'ACT_PASSWORD' => $this->modx->getOption('office_zp_password')
 				,'API_URL' => $this->modx->getOption('office_zp_api_url')
 
+				,'activationType' => $this->modx->getOption('office_zp_activation_type', null, 'MAIL_CODE', true) // Can be PHONE_CODE or MAIL_CODE
 				,'tplRegister' => 'tpl.Office.zp.register'
 				,'tplOperations' => 'tpl.Office.zp.operations'
 			), $config);
@@ -31,8 +32,6 @@ class officeZPaymentController extends officeDefaultController {
 	public function initialize($ctx = 'web') {
 		$this->modx->error->errors = array();
 		$this->modx->error->message = '';
-		//return $this->loadPackage();
-
 		return true;
 	}
 
@@ -58,8 +57,6 @@ class officeZPaymentController extends officeDefaultController {
 			else {
 				$pls = $user->toArray();
 				$pls['balance'] = $this->moneyFormat($pls['balance']);
-				//$result = $this->createPay(3, $pls['zp'], 10);
-				//echo '<pre>';print_r($result);die;
 				return $this->modx->getChunk($this->config['tplOperations'], $pls);
 			}
 		}
@@ -124,7 +121,7 @@ class officeZPaymentController extends officeDefaultController {
 		$request['HASH'] = md5(implode(array_values($tmp)) . $this->config['ACT_PASSWORD']);
 
 		$query = $this->config['API_URL'] . $action . '.php?' . http_build_query($request);
-		if (function_exists('curl_init2')) {
+		if (function_exists('curl_init')) {
 			$curl = curl_init();
 			curl_setopt($curl, CURLOPT_RETURNTRANSFER, true);
 			curl_setopt($curl, CURLOPT_FOLLOWLOCATION, true);
@@ -132,9 +129,11 @@ class officeZPaymentController extends officeDefaultController {
 			curl_setopt($curl, CURLOPT_TIMEOUT, 1);
 			$result = curl_exec($curl);
 			curl_close($curl);
-		} else {
+		}
+		if (empty($result)) {
 			$result = @file_get_contents($query);
 		}
+
 		if (empty($result) || !$result = simplexml_load_string($result)) {
 			$this->modx->log(modX::LOG_LEVEL_ERROR, "[Office] Error executing query.\nRequest: ".$query."\nResponse: ".$result);
 			return false;
@@ -266,7 +265,7 @@ class officeZPaymentController extends officeDefaultController {
 
 		$params = array(
 			'CLIENT_ACCOUNT' => $zp
-			,'CONFIRM_CODE' => $params['code']
+			,$this->config['activationType'] => $params['code']
 		);
 		if ($result = $this->request('create_purse', $params, array('ID_INTERFACE','ZP_ACCOUNT','CLIENT_ACCOUNT'))) {
 			if ($result['Status'] != 1) {

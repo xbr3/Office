@@ -21,3 +21,5 @@ $_lang['setting_office_zp_password'] = 'Password to the interface';
 $_lang['setting_office_zp_password_desc'] = 'This password will also have to issue upon registration in the Z-Payment.';
 $_lang['setting_office_zp_money_format'] = 'Money format';
 $_lang['setting_office_zp_money_format_desc'] = 'You can specify, how to format money by function number_format(). For this used JSON string with array of 3 values: number of decimals, decimals separator and thousands separator. By default format is [2,"."," "], that transforms "15336.6" into "15 336.60"';
+$_lang['setting_office_zp_activation_type'] = 'The type of purses activation';
+$_lang['setting_office_zp_activation_type_desc'] = 'Depending on the settings of your billing, you must specify one of two possible types of purses activation: PHONE_CODE or MAIL_CODE.';

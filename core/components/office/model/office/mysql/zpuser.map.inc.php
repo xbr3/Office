@@ -2,16 +2,21 @@
 $xpdo_meta_map['zpUser']= array (
   'package' => 'office',
   'version' => '1.1',
-  'table' => 'zp_users',
+  'table' => 'office_zp_users',
   'extends' => 'xPDOSimpleObject',
   'fields' => 
   array (
     'internalKey' => NULL,
+    'zp' => '',
     'active' => 0,
     'f_name' => '',
     's_name' => '',
     'm_name' => '',
+    'email' => '',
     'phone' => '',
+    'createdon' => NULL,
+    'activatedon' => NULL,
+    'balance' => 0,
   ),
   'fieldMeta' => 
   array (
@@ -22,6 +27,14 @@ $xpdo_meta_map['zpUser']= array (
       'phptype' => 'integer',
       'null' => false,
       'index' => 'unique',
+    ),
+    'zp' => 
+    array (
+      'dbtype' => 'char',
+      'precision' => '10',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '',
     ),
     'active' => 
     array (
@@ -36,7 +49,7 @@ $xpdo_meta_map['zpUser']= array (
     'f_name' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '64',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
@@ -44,7 +57,7 @@ $xpdo_meta_map['zpUser']= array (
     's_name' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '64',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
@@ -52,7 +65,15 @@ $xpdo_meta_map['zpUser']= array (
     'm_name' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '64',
+      'phptype' => 'string',
+      'null' => false,
+      'default' => '',
+    ),
+    'email' => 
+    array (
+      'dbtype' => 'varchar',
+      'precision' => '128',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
@@ -60,10 +81,28 @@ $xpdo_meta_map['zpUser']= array (
     'phone' => 
     array (
       'dbtype' => 'varchar',
-      'precision' => '50',
+      'precision' => '15',
       'phptype' => 'string',
       'null' => false,
       'default' => '',
+    ),
+    'createdon' => 
+    array (
+      'dbtype' => 'datetime',
+      'phptype' => 'datetime',
+    ),
+    'activatedon' => 
+    array (
+      'dbtype' => 'datetime',
+      'phptype' => 'datetime',
+    ),
+    'balance' => 
+    array (
+      'dbtype' => 'decimal',
+      'precision' => '12,2',
+      'phptype' => 'float',
+      'null' => false,
+      'default' => 0,
     ),
   ),
   'indexes' => 

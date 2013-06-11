@@ -40,6 +40,11 @@ $tmp = array(
 		,'value' => '[2, ".", " "]'
 		,'area' => 'office_zpayment'
 	)
+	,'zp_activation_type' => array(
+		'xtype' => 'textfield'
+		,'value' => 'MAIL_CODE'
+		,'area' => 'office_zpayment'
+	)
 );
 
 foreach ($tmp as $k => $v) {
