@@ -97,6 +97,12 @@ class officeExtrasKeysController extends officeDefaultController {
 		if (!isset($response->response['data'])) {$response->response['data'] = array();}
 		return $this->response($response);
 	}
+	public function resetHost($data) {
+		/* @var modProcessorResponse $response */
+		$response = $this->office->runProcessor('extras/key/reset', $data);
+		if (!isset($response->response['data'])) {$response->response['data'] = array();}
+		return $this->response($response);
+	}
 
 	public function response($response) {
 		if (!isset($response->response['data'])) {

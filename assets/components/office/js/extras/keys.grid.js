@@ -35,7 +35,7 @@ Extras.grid.Keys = function(config) {
 		,baseParams: {
 			action: 'extras/getKeys'
 		}
-		,fields: ['id','key','active','vip','packages','host','description','createdon','editedon']
+		,fields: ['id','key','active','vip','reset','packages','host','description','createdon','editedon']
 		,autoHeight: true
 		,paging: true
 		,remoteSort: true
@@ -81,7 +81,14 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 			text: _('extras_update')
 			,handler: this.updateKey
 		});
+		if (record.reset == 0) {
+			m.push({
+				text: _('office_extras_reset_host')
+				,handler: this.resetHost
+			});
+		}
 		m.push('-');
+
 		m.push({
 			text: _('extras_remove')
 			,handler: this.removeKey
@@ -158,7 +165,22 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 				,id: this.menu.record.id
 			}
 			,listeners: {
-				'success': {fn:function(r) { this.refresh(); },scope:this}
+				success: {fn:function(r) { this.refresh(); },scope:this}
+			}
+		});
+	}
+
+	,resetHost: function(btn, e) {
+		MODx.msg.confirm({
+			title: _('office_extras_reset_host')
+			,text: _('office_extras_reset_host_confirm')
+			,url: this.config.url
+			,params: {
+				action: 'extras/resetHost'
+				,id: this.menu.record.id
+			}
+			,listeners: {
+				success: {fn:function(r) { this.refresh(); },scope:this}
 			}
 		});
 	}
