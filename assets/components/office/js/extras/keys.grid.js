@@ -35,7 +35,7 @@ Extras.grid.Keys = function(config) {
 		,baseParams: {
 			action: 'extras/getKeys'
 		}
-		,fields: ['id','key','active','vip','reset','packages','host','description','createdon','editedon']
+		,fields: ['id','key','active','vip','reset','packages','downloads','host','description','createdon','editedon']
 		,autoHeight: true
 		,paging: true
 		,remoteSort: true
@@ -46,6 +46,7 @@ Extras.grid.Keys = function(config) {
 			//,{header: _('extras_vip'), dataIndex: 'vip', width: 50, renderer: this._renderBoolean}
 			,{header: _('extras_active'),dataIndex: 'active',width: 50, renderer: this._renderBoolean}
 			//,{header: _('extras_packages'), dataIndex: 'packages', width: 50}
+			,{header: _('extras_downloaded'), dataIndex: 'downloads', width: 50}
 			,{header: _('extras_host'), dataIndex: 'host', width: 100}
 			,{header: _('extras_createdon'), dataIndex: 'createdon', width: 100}
 			,{header: _('extras_editedon'), dataIndex: 'editedon', width: 100}

@@ -13,8 +13,10 @@ class extraKeyGetListProcessor extends modObjectGetListProcessor {
 
 	public function prepareQueryAfterCount(xPDOQuery $c) {
 		$c->leftJoin('extraPackageAccess', 'extraPackageAccess', '`extraPackageAccess`.`key_id` = `extraKey`.`id`');
+		$c->leftJoin('extraPackageDownload', 'extraPackageDownload', '`extraPackageDownload`.`key_id` = `extraKey`.`id`');
 		$c->select($this->modx->getSelectColumns('extraKey','extraKey'));
-		$c->select('COUNT(`extraPackageAccess`.`package_id`) as `packages`');
+		$c->select('COUNT(DISTINCT `extraPackageAccess`.`package_id`) as `packages`');
+		$c->select('COUNT(DISTINCT `extraPackageDownload`.`package_id`) as `downloads`');
 		$c->groupby('`extraKey`.`id`');
 		return $c;
 	}
