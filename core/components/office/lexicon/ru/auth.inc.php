@@ -3,8 +3,9 @@
 $_lang['office_auth_login'] = 'Вход';
 $_lang['office_auth_logout'] = 'Выход';
 $_lang['office_auth_send'] = 'Отправить';
-$_lang['office_auth_form_header'] = 'Вход в <strong>аккаунт</strong>';
+$_lang['office_auth_form_header'] = 'Вход в аккаунт';
 $_lang['office_auth_form_footer'] = 'Мы пришлём вам ссылку для входа на сайт';
+$_lang['office_auth_welcome'] = 'Вы авторизованы как ';
 
 $_lang['office_auth_email'] = 'Ваш email';
 $_lang['office_auth_email_subject'] = 'Ссылка для авторизации';

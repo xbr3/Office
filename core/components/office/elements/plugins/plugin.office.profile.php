@@ -8,10 +8,11 @@ switch ($modx->event->name) {
 				$modx->sendRedirect($modx->makeUrl($modx->getOption('site_start'),'','','full'));
 			}
 
-			$office = $modx->getOption('office_page_id');
-			if (trim($modx->user->Profile->fullname) == '' && $modx->resource->id != $office && $modx->resource->parent != $office) {
-				$modx->sendRedirect($modx->makeUrl($office,'','','full'));
+			$page_id = $modx->getOption('office_profile_page_id');
+			if (trim($modx->user->Profile->fullname) == '' && !empty($page_id) && $modx->resource->id != $page_id && $modx->resource->parent != $page_id) {
+				$modx->sendRedirect($modx->makeUrl($page_id,'','','full'));
 			}
 		};
 	break;
+
 }

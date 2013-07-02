@@ -67,7 +67,7 @@ class Office {
 			default:
 				if (!defined('MODX_API_MODE') || !MODX_API_MODE) {
 					$config = $this->makePlaceholders($this->config);
-					if ($css = $this->modx->getOption('office_frontend_css')) {
+					if ($css = trim($this->modx->getOption('office_frontend_css'))) {
 						$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
 					}
 					if ($js = trim($this->modx->getOption('office_frontend_js'))) {

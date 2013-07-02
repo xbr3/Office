@@ -28,6 +28,7 @@ $sources = array(
 	,'pages' => $root.'core/components/'.PKG_NAME_LOWER.'/elements/pages/'
 	,'source_assets' => $root.'assets/components/'.PKG_NAME_LOWER
 	,'source_core' => $root.'core/components/'.PKG_NAME_LOWER
+	,'controllers' => $root.'core/components/'.PKG_NAME_LOWER.'/controllers/'
 );
 unset($root);
 
@@ -223,6 +224,20 @@ $attr = array(
 );
 $vehicle = $builder->createVehicle($category,$attr);
 
+/* excluding controllers */
+$saved = array();
+$controllers = scandir($sources['controllers']);
+foreach ($controllers as $controller) {
+	$file = $sources['controllers'] . $controller;
+	if (!is_file($file)) {continue;}
+	preg_match('/(.*?)\.class\.php$/', $controller, $matches);
+	$name = $matches[1];
+	if (!in_array($name, $BUILD_CONTROLLERS)) {
+		$saved[$name] = file_get_contents($file);
+		unlink($file);
+	}
+}
+
 /* now pack in resolvers */
 $vehicle->resolve('file',array(
 	'source' => $sources['source_assets'],
@@ -268,6 +283,12 @@ $mtime= $mtime[1] + $mtime[0];
 $tend= $mtime;
 $totalTime= ($tend - $tstart);
 $totalTime= sprintf("%2.4f s", $totalTime);
+
+/* restoring excluded controllers */
+foreach ($saved as $name => $content) {
+	$file = $sources['controllers'] . $name .'.class.php';
+	file_put_contents($file, $content);
+}
 
 $modx->log(modX::LOG_LEVEL_INFO,"\n<br />Package Built.<br />\nExecution time: {$totalTime}\n");
 

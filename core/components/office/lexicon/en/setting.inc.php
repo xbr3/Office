@@ -1,15 +1,28 @@
 <?php
 
 $_lang['area_office_main'] = 'Main';
-
-$_lang['setting_office_frontend_css'] = 'Frontend styles';
-$_lang['setting_office_frontend_css_desc'] = 'Path to file with styles of the shop. If you want to use your own styles - specify them here, or clean this parameter and load them in site template.';
-$_lang['setting_office_frontend_js'] = 'Frontend scripts';
-$_lang['setting_office_frontend_js_desc'] = 'Path to file with scripts of the shop. If you want to use your own sscripts - specify them here, or clean this parameter and load them in site template.';
-$_lang['setting_office_page_id'] = 'Office page id';
-$_lang['setting_office_page_id_desc'] = 'Specify on which page of the site the snippet Office is called. This option is required to generate links.';
-
+$_lang['area_office_auth'] = 'Authorization';
+$_lang['area_office_profile'] = 'Profile';
+$_lang['area_office_extras'] = 'Extras';
 $_lang['area_office_zpayment'] = 'Z-Payment';
+
+$_lang['setting_office_frontend_css'] = 'Office main styles';
+$_lang['setting_office_frontend_css_desc'] = 'Path to file with the main styles of the office. If you want to use your own styles - specify them here, or clean this parameter and load them in site template.';
+$_lang['setting_office_frontend_js'] = 'Office main script';
+$_lang['setting_office_frontend_js_desc'] = 'Path to file with the main javascript of the office. If you want to use your own sscripts - specify them here, or clean this parameter and load them in site template.';
+$_lang['setting_office_auth_frontend_css'] = 'Styles of controller Auth';
+$_lang['setting_office_auth_frontend_css_desc'] = 'Path to file with Auth styles. If you want to use your own styles - specify them here, or clean this parameter and load them in site template.';
+$_lang['setting_office_auth_frontend_js'] = 'Script of controller Auth';
+$_lang['setting_office_auth_frontend_js_desc'] = 'Path to file with the Auth javascript. If you want to use your own sscripts - specify them here, or clean this parameter and load them in site template.';
+$_lang['setting_office_profile_frontend_css'] = 'Styles of controller Profile';
+$_lang['setting_office_profile_frontend_css_desc'] = 'Path to file with Profile styles. If you want to use your own styles - specify them here, or clean this parameter and load them in site template.';
+$_lang['setting_office_profile_frontend_js'] = 'Script of controller Profile';
+$_lang['setting_office_profile_frontend_js_desc'] = 'Path to file with the Profile javascript. If you want to use your own sscripts - specify them here, or clean this parameter and load them in site template.';
+
+$_lang['setting_office_auth_page_id'] = 'Auth page id';
+$_lang['setting_office_auth_page_id_desc'] = 'Id of the site page, where controller Auth is called. This setting is automatically filled in when you call the controller first time.';
+$_lang['setting_office_auth_page_id'] = 'Profile page id';
+$_lang['setting_office_auth_page_id_desc'] = 'Id of the site page, where controller Profile is called. This setting is automatically filled in when you call the controller first time.';
 
 $_lang['setting_office_zp_interface'] = 'Interface identity';
 $_lang['setting_office_zp_interface_desc'] = 'Integer representing the payment interface, which you gave when registering in the Z-Payment.';

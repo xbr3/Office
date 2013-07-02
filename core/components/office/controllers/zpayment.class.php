@@ -38,11 +38,17 @@ class officeZPaymentController extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			return $this->modx->sendUnauthorizedPage();
+			$this->modx->sendUnauthorizedPage();
+			return '';
 		}
 
-		$this->modx->regClientCSS($this->office->config['cssUrl'] . 'zpayment/default.css');
-		$this->modx->regClientScript($this->office->config['jsUrl'] . 'zpayment/default.js');
+		$config = $this->office->makePlaceholders($this->office->config);
+		if ($css = trim($this->modx->getOption('office_zpayment_frontend_css', null, '[[+cssUrl]]zpayment/default.css'))) {
+			$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+		}
+		if ($js = trim($this->modx->getOption('office_zpayment_frontend_js', null, '[[+jsUrl]]zpayment/default.js'))) {
+			$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
+		}
 
 		if (!$user = $this->getUser()) {
 			return $this->modx->getChunk($this->config['tplRegister'], array('mode' => 'new'));

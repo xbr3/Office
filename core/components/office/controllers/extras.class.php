@@ -31,22 +31,26 @@ class officeExtrasKeysController extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			return $this->modx->sendUnauthorizedPage();
+			$this->modx->sendUnauthorizedPage();
+			return '';
 		}
 		else {
-			$this->modx->regClientCSS($this->office->config['cssUrl'] . 'extras/default.css');
-			$this->office->addClientExtJS();
-
-			$this->office->addClientLexicon(array(
-				'extras:default'
-			), 'extras/lexicon');
-
-			$this->office->addClientJs(array(
-				'/assets/components/extras/js/mgr/extras.js'
-				,'/assets/components/extras/js/misc/extras.combo.js'
-				,$this->office->config['jsUrl'] . 'extras/keys.grid.js'
-				,$this->office->config['jsUrl'] . 'extras/default.js'
-			), 'extras/all');
+			$config = $this->office->makePlaceholders($this->office->config);
+			if ($css = trim($this->modx->getOption('office_extras_frontend_css', null, '[[+cssUrl]]extras/default.css'))) {
+				$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+			}
+			if ($js = trim($this->modx->getOption('office_extras_frontend_js', null, '[[+jsUrl]]extras/default.js'))) {
+				$this->office->addClientExtJS();
+				$this->office->addClientLexicon(array(
+					'extras:default'
+				), 'extras/lexicon');
+				$this->office->addClientJs(array(
+					'/assets/components/extras/js/mgr/extras.js'
+					,'/assets/components/extras/js/misc/extras.combo.js'
+					,$this->office->config['jsUrl'] . 'extras/keys.grid.js'
+					,str_replace($config['pl'], $config['vl'], $js)
+				), 'extras/all');
+			}
 
 			return $this->modx->getChunk($this->config['tplOuter']);
 		}

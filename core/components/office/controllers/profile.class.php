@@ -9,7 +9,7 @@ class officeProfileController extends officeDefaultController {
 		}
 		else {
 			$this->config = array_merge(array(
-				'tplForm' => 'tpl.Office.profile.form'
+				'tplProfile' => 'tpl.Office.profile.form'
 				,'tplActivate' => 'tpl.Office.profile.activate'
 
 				,'profileFields' => 'email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website'
@@ -18,6 +18,14 @@ class officeProfileController extends officeDefaultController {
 				,'pageId' => 0
 			), $config);
 
+			$page_id = $this->modx->getOption('office_profile_page_id');
+			if (empty($page_id)) {
+				/* @var modSystemSetting $setting */
+				if ($setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
+					$setting->set('value', $this->modx->resource->id);
+					$setting->save();
+				}
+			}
 			$_SESSION['Office']['Profile'] = $this->config;
 		}
 	}
@@ -30,17 +38,23 @@ class officeProfileController extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			return $this->modx->sendUnauthorizedPage();
+			$this->modx->sendUnauthorizedPage();
+			return '';
 		}
 		else {
-			$this->modx->regClientCSS($this->office->config['cssUrl'] . 'profile/default.css');
-			$this->modx->regClientScript($this->office->config['jsUrl'] . 'profile/default.js');
+			$config = $this->office->makePlaceholders($this->office->config);
+			if ($css = trim($this->modx->getOption('office_profile_frontend_css', null, '[[+cssUrl]]profile/default.css'))) {
+				$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+			}
+			if ($js = trim($this->modx->getOption('office_profile_frontend_js', null, '[[+jsUrl]]profile/default.js'))) {
+				$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
+			}
 
 			$user = $this->modx->user->toArray();
 			$profile = $this->modx->user->getOne('Profile')->toArray();
 			$user['gravatar'] = 'http://www.gravatar.com/avatar/'.md5(strtolower($profile['email']));
 
-			return $this->modx->getChunk($this->config['tplForm'], array_merge($profile, $user));
+			return $this->modx->getChunk($this->config['tplProfile'], array_merge($profile, $user));
 		}
 	}
 
@@ -64,7 +78,7 @@ class officeProfileController extends officeDefaultController {
 			}
 		}
 
-		$fields['requiredFields'] = explode(',', $this->config['requiredFields']);
+		$fields['requiredFields'] = array_map('trim', explode(',', $this->config['requiredFields']));
 
 		$current_email = $this->modx->user->get('username');
 		$new_email =  @$fields['email'];
@@ -84,7 +98,7 @@ class officeProfileController extends officeDefaultController {
 		}
 
 		if ($changeEmail) {
-			$page_id = !empty($data['pageId']) ? $data['pageId'] : $this->modx->getOption('office_page_id');
+			$page_id = !empty($data['pageId']) ? $data['pageId'] : $this->modx->getOption('office_profile_page_id');
 			$change = $this->changeEmail($new_email, $page_id);
 			return ($change !== true)
 				? $this->success($this->modx->lexicon('office_profile_msg_save_noemail', array('errors', implode(',', $change))))

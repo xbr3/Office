@@ -11,7 +11,6 @@ class officeAuthController extends officeDefaultController {
 			$this->config = array_merge(array(
 				'tplLogin' => 'tpl.Office.auth.login'
 				,'tplLogout' => 'tpl.Office.auth.logout'
-				,'tplProfile' => 'tpl.Office.auth.profile'
 				,'tplActivate' => 'tpl.Office.auth.activate'
 
 				,'siteUrl' => $this->modx->getOption('site_url')
@@ -27,6 +26,18 @@ class officeAuthController extends officeDefaultController {
 
 			$_SESSION['Office']['Auth'] = $this->config;
 		}
+
+		$page_id = $this->modx->getOption('office_auth_page_id');
+		if (empty($page_id)) {
+			/* @var modSystemSetting $setting */
+			if ($setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
+				$setting->set('value', $this->modx->resource->id);
+				$setting->save();
+			}
+		}
+
+		if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $page_id;}
+		if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $page_id;}
 	}
 
 
@@ -36,7 +47,13 @@ class officeAuthController extends officeDefaultController {
 
 
 	public function defaultAction() {
-		$this->modx->regClientScript($this->office->config['jsUrl'] . 'auth/default.js');
+		$config = $this->office->makePlaceholders($this->office->config);
+		if ($css = trim($this->modx->getOption('office_auth_frontend_css'))) {
+			$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+		}
+		if ($js = trim($this->modx->getOption('office_auth_frontend_js', null, '[[+jsUrl]]auth/default.js'))) {
+			$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
+		}
 
 		if (!$this->modx->user->isAuthenticated()) {
 			return $this->modx->getChunk($this->config['tplLogin']);
@@ -44,6 +61,7 @@ class officeAuthController extends officeDefaultController {
 		else {
 			$user = $this->modx->user->toArray();
 			$profile = $this->modx->user->getOne('Profile')->toArray();
+			$user['gravatar'] = 'http://www.gravatar.com/avatar/'.md5(strtolower($profile['email']));
 			return $this->modx->getChunk($this->config['tplLogout'], array_merge($profile, $user));
 		}
 	}
@@ -101,18 +119,11 @@ class officeAuthController extends officeDefaultController {
 		$user->save();
 
 		/* send activation email */
-		$link = $this->modx->makeUrl(
-			!empty($this->config['loginResourceId'])
-				? $this->config['loginResourceId']
-				: $this->modx->getOption('office_page_id', null, $this->modx->getOption('site_start'), true)
-			, ''
-			, array(
+		$link = $this->modx->makeUrl($this->config['loginResourceId'], '', array(
 				'action' => 'auth/login'
 				,'email' => $email
 				,'hash' => $activationHash.':'.$newPassword
-			)
-			, 'full'
-		);
+			), 'full');
 
 		$send = $user->sendEmail(
 			$this->modx->getChunk(
@@ -208,7 +219,6 @@ class officeAuthController extends officeDefaultController {
 	 * */
 	function sendRedirect($action = '') {
 		if ($action == 'login' && $this->config['loginResourceId']) {
-
 			$url = $this->modx->makeUrl($this->config['loginResourceId'],'','','full');
 		}
 		else if ($action == 'logout' && $this->config['logoutResourceId']) {

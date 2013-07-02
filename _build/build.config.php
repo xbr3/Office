@@ -3,7 +3,7 @@
 define('PKG_NAME', 'Office');
 define('PKG_NAME_LOWER', strtolower(PKG_NAME));
 
-define('PKG_VERSION', '0.5.0');
+define('PKG_VERSION', '0.6.0');
 define('PKG_RELEASE', 'beta');
 
 
@@ -34,6 +34,10 @@ define('BUILD_POLICY_UPDATE', true);
 define('BUILD_POLICY_TEMPLATE_UPDATE', true);
 define('BUILD_PERMISSION_UPDATE', true);
 
-define('BUILD_CHUNK_STATIC', true);
-define('BUILD_SNIPPET_STATIC', true);
-define('BUILD_PLUGIN_STATIC', true);
+define('BUILD_CHUNK_STATIC', false);
+define('BUILD_SNIPPET_STATIC', false);
+define('BUILD_PLUGIN_STATIC', false);
+
+$BUILD_CONTROLLERS = array(
+	'main','auth','profile'
+);

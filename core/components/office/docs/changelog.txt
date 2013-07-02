@@ -1,12 +1,15 @@
 Changelog for Office.
 
-0.5.0
+0.6.0
 ==============
-- [Zpayment] Added ZP private office
+- [Main] Preparation for first public release
+- [Auth] Added system setting "office_auth_page_id"
+- [Profile] Added system setting "office_profile_page_id"
+- Added ability to load custom styles and javascript for Auth and Profile controllers.
 
 0.4.0
 ==============
-- [Main] Main class improvements. Added method addClientExtJS
+- [Main] Main class improvements. Added method Office::addClientExtJS()
 
 0.3.2
 ==============
@@ -16,12 +19,10 @@ Changelog for Office.
 ==============
 - [Auth] Added checking of already send activation link
 - [Auth] Added checking of already logged in users
-- [Extras] Added events in key processors
 
 0.3.0
 ==============
 - [Main] Integration of Ext JS from MODX
-- [Extras] Keys grid
 
 0.2.0
 ==============
