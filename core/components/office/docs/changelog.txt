@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.7.0
+==============
+- [miniShop2] Added new controller
+
 0.6.0
 ==============
 - [Main] Preparation for first public release

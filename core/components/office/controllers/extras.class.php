@@ -10,7 +10,6 @@ class officeExtrasKeysController extends officeDefaultController {
 		else {
 			$this->config = array_merge(array(
 				'tplOuter' => 'tpl.Office.extras.outer'
-				,'tplRow' => 'tpl.Office.extras.row'
 			), $config);
 
 			$_SESSION['Office']['Extras'] = $this->config;
@@ -36,7 +35,7 @@ class officeExtrasKeysController extends officeDefaultController {
 		}
 		else {
 			$config = $this->office->makePlaceholders($this->office->config);
-			if ($css = trim($this->modx->getOption('office_extras_frontend_css', null, '[[+cssUrl]]extras/default.css'))) {
+			if ($css = trim($this->modx->getOption('office_extras_frontend_css'))) {
 				$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
 			}
 			if ($js = trim($this->modx->getOption('office_extras_frontend_js', null, '[[+jsUrl]]extras/default.js'))) {

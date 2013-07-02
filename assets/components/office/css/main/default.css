@@ -27,3 +27,8 @@ form.x-panel-body,
 .x-panel-body textarea[readonly] {
 	cursor: default;
 }
+
+ul.x-tab-strip-top {
+	margin: 0 !important;
+	padding: 0 !important;
+}

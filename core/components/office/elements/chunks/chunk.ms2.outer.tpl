@@ -1,0 +1,1 @@
+<div id="office-minishop2-grid"></div>

@@ -369,6 +369,7 @@ class Office {
 		$this->addClientJs(array(
 			'/manager/assets/modext/core/modx.localization.js'
 			,'/manager/assets/modext/util/utilities.js'
+			,'/manager/assets/modext/util/datetime.js'
 			,'/manager/assets/modext/core/modx.component.js'
 			,'/manager/assets/modext/widgets/core/modx.panel.js'
 			,'/manager/assets/modext/widgets/core/modx.tabs.js'

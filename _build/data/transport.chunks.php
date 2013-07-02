@@ -43,6 +43,12 @@ $tmp = array(
 			,'description' => ''
 		)
 	)
+	,'minishop2' => array(
+		'tpl.Office.ms2.outer' => array(
+			'file' => 'ms2.outer'
+			,'description' => ''
+		)
+	)
 );
 
 foreach ($tmp as $controller => $values) {

@@ -79,6 +79,23 @@ $tmp = array(
 			,'area' => 'office_zpayment'
 		)
 	)
+	,'minishop2' => array(
+		'ms2_frontend_css' => array(
+			'xtype' => 'textfield'
+			,'value' => ''
+			,'area' => 'office_ms2'
+		)
+		,'ms2_frontend_js' => array(
+			'xtype' => 'textfield'
+			,'value' => '[[+jsUrl]]minishop2/default.js'
+			,'area' => 'office_ms2'
+		)
+		,'ms2_date_format' => array(
+			'xtype' => 'textfield'
+			,'value' => '%d.%m.%y <small>%H:%M</small>'
+			,'area' => 'office_ms2'
+		)
+	)
 );
 
 foreach ($tmp as $controller => $values) {
