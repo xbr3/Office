@@ -29,21 +29,11 @@ miniShop2.grid.Orders = function(config) {
 		,baseParams: {
 			action: 'minishop2/getOrders'
 		}
-		,fields: ['id','num','status','delivery','payment','cost','weight','createdon','updatedon']
+		,fields: MODx.config.order_grid_fields
 		,autoHeight: true
 		,paging: true
 		,remoteSort: true
-		,columns: [
-			{header: _('ms2_id'),dataIndex: 'id',width: 50, hidden: true}
-			,{header: _('ms2_num'),dataIndex: 'num',width: 50, sortable: true}
-			,{header: _('ms2_status'),dataIndex: 'status',width: 50, sortable: true}
-			,{header: _('ms2_cost'),dataIndex: 'cost',width: 50, sortable: true}
-			,{header: _('ms2_weight'),dataIndex: 'weight',width: 50, sortable: true}
-			,{header: _('ms2_delivery'),dataIndex: 'delivery',width: 100, sortable: true}
-			,{header: _('ms2_payment'),dataIndex: 'payment',width: 100, sortable: true}
-			,{header: _('ms2_createdon'),dataIndex: 'createdon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
-			,{header: _('ms2_updatedon'),dataIndex: 'updatedon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
-		]
+		,columns: this.getColumns()
 		,tbar: ['->', {
 				xtype: 'minishop2-combo-status'
 				,id: 'tbar-minishop2-combo-status'
@@ -91,6 +81,41 @@ Ext.extend(miniShop2.grid.Orders,MODx.grid.Grid,{
 			,handler: this.viewOrder
 		});
 		this.addContextMenuItem(m);
+	}
+
+	,getColumns: function() {
+		var fields = {
+			id: {header: _('ms2_id'),dataIndex: 'id',width: 50, hidden: true}
+			//,user_id: {header: _('ms2_user_id'),dataIndex: 'user_id',width: 50, hidden: true}
+
+			,createdon: {header: _('ms2_createdon'),dataIndex: 'createdon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
+			,updatedon: {header: _('ms2_updatedon'),dataIndex: 'updatedon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
+
+			,num: {header: _('ms2_num'),dataIndex: 'num',width: 50, sortable: true}
+			,cost: {header: _('ms2_cost'),dataIndex: 'cost',width: 75, sortable: true}
+			,cart_cost: {header: _('ms2_cart_cost'),dataIndex: 'cart_cost',width: 75, sortable: true}
+			,delivery_cost: {header: _('ms2_delivery_cost'),dataIndex: 'delivery_cost',width: 75, sortable: true}
+
+			,weight: {header: _('ms2_weight'),dataIndex: 'weight',width: 50, sortable: true}
+			,status: {header: _('ms2_status'),dataIndex: 'status',width: 75, sortable: true}
+			,delivery: {header: _('ms2_delivery'),dataIndex: 'delivery',width: 75, sortable: true}
+			,payment: {header: _('ms2_payment'),dataIndex: 'payment',width: 75, sortable: true}
+			//,address: {header: _('ms2_address'),dataIndex: 'address',width: 50, sortable: true}
+			//,context: {header: _('ms2_context'),dataIndex: 'context',width: 50, sortable: true}
+
+			,customer: {header: _('ms2_customer'),dataIndex: 'customer',width: 150, sortable: true}
+			,receiver: {header: _('ms2_receiver'),dataIndex: 'receiver',width: 150, sortable: true}
+		};
+
+		var columns = [];
+		for(var i=0; i < MODx.config.order_grid_fields.length; i++) {
+			var field = MODx.config.order_grid_fields[i];
+			if (fields[field]) {
+				columns.push(fields[field]);
+			}
+		}
+
+		return columns;
 	}
 /*
 	,FilterByQuery: function(tf, nv, ov) {

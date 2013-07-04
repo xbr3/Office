@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.7.1
+==============
+- [miniShop2] Customizable orders grid
+
 0.7.0
 ==============
 - [miniShop2] Added new controller

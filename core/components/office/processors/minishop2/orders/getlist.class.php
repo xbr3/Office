@@ -15,13 +15,32 @@ class msOrderGetListProcessor extends modObjectGetListProcessor {
 	public function prepareQueryBeforeCount(xPDOQuery $c) {
 		$c->where(array('user_id' => $this->modx->user->id));
 
-		$c->leftJoin('msOrderStatus','msOrderStatus', '`msOrder`.`status` = `msOrderStatus`.`id`');
-		$c->leftJoin('msDelivery','msDelivery', '`msOrder`.`delivery` = `msDelivery`.`id`');
-		$c->leftJoin('msPayment','msPayment', '`msOrder`.`payment` = `msPayment`.`id`');
+		$all = array_keys($this->modx->getFieldMeta('msOrder'));;
+		$enabled = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_grid_fields', null, 'id,num,status,cost,weight,delivery,payment,createdon,updatedon', true)));
+		$tmp = array_intersect($enabled, $all); unset($tmp['comment']);
+		if (!in_array('id', $tmp)) {$tmp[] = 'id';}
+		$c->select($this->modx->getSelectColumns('msOrder', 'msOrder', '', $tmp));
 
-		$c->select($this->modx->getSelectColumns('msOrder', 'msOrder', '', array('comment'), true));
-		$c->select($this->modx->getSelectColumns('msOrder', 'msOrder', '', array('status','delivery','payment'), true));
-		$c->select('`msOrderStatus`.`name` as `status`, `msOrderStatus`.`color`, `msDelivery`.`name` as `delivery`, `msPayment`.`name` as `payment`');
+		if (in_array('status', $enabled)) {
+			$c->leftJoin('msOrderStatus','msOrderStatus', '`msOrder`.`status` = `msOrderStatus`.`id`');
+			$c->select('`msOrderStatus`.`name` as `status`, `msOrderStatus`.`color`');
+		}
+		if (in_array('delivery', $enabled)) {
+			$c->leftJoin('msDelivery','msDelivery', '`msOrder`.`delivery` = `msDelivery`.`id`');
+			$c->select('`msDelivery`.`name` as `delivery`');
+		}
+		if (in_array('payment', $enabled)) {
+			$c->leftJoin('msPayment','msPayment', '`msOrder`.`payment` = `msPayment`.`id`');
+			$c->select('`msPayment`.`name` as `payment`');
+		}
+		if (in_array('customer', $enabled)) {
+			$c->leftJoin('modUserProfile','modUserProfile', '`msOrder`.`user_id` = `modUserProfile`.`internalKey`');
+			$c->select('`modUserProfile`.`fullname` as `customer`');
+		}
+		if (in_array('receiver', $enabled)) {
+			$c->leftJoin('msOrderAddress','msOrderAddress', '`msOrder`.`address` = `msOrderAddress`.`id`');
+			$c->select('`msOrderAddress`.`receiver`');
+		}
 
 		if ($query = $this->getProperty('query')) {
 			$c->where(array(

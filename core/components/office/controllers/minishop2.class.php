@@ -51,12 +51,7 @@ class officeMS2Controller extends officeDefaultController {
 					,str_replace($config['pl'], $config['vl'], $js)
 				), 'minishop2/all');
 
-				$this->modx->regClientScript(str_replace('				', '', '
-				<script type="text/javascript">
-					MODx.config.ms2_date_format = "'.str_replace('"','\"', $this->modx->getOption('office_ms2_date_format')).'";
-					MODx.config.default_per_page = "'.$this->modx->getOption('default_per_page').'";
-				</script>
-				'), true);
+				$this->setConfig();
 			}
 
 			return $this->modx->getChunk($this->config['tplOuter']);
@@ -69,6 +64,22 @@ class officeMS2Controller extends officeDefaultController {
 		$modelPath = $corePath.'model/';
 
 		return $this->modx->addPackage('minishop2', $modelPath);
+	}
+
+
+	public function setConfig() {
+		$grid_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_grid_fields', null, 'num,status,cost,weight,delivery,payment,createdon,updatedon', true)));
+		if (!in_array('id', $grid_fields)) {$grid_fields[] = 'id';}
+
+		//var_dump($of_all);die;
+
+		$this->modx->regClientScript(str_replace('				', '', '
+			<script type="text/javascript">
+				MODx.config.ms2_date_format = "'.str_replace('"','\"', $this->modx->getOption('office_ms2_date_format')).'";
+				MODx.config.default_per_page = "'.$this->modx->getOption('default_per_page').'";
+				MODx.config.order_grid_fields = '.$this->modx->toJSON($grid_fields).';
+			</script>
+		'), true);
 	}
 
 

@@ -95,6 +95,11 @@ $tmp = array(
 			,'value' => '%d.%m.%y <small>%H:%M</small>'
 			,'area' => 'office_ms2'
 		)
+		,'ms2_order_grid_fields' => array(
+			'xtype' => 'textarea'
+			,'value' => 'num,status,cost,weight,delivery,payment,createdon,updatedon'
+			,'area' => 'office_ms2'
+		)
 	)
 );
 
