@@ -40,6 +40,11 @@ $tmp = array(
 			,'value' => 0
 			,'area' => 'office_profile'
 		)
+		,'profile_required_fields' => array(
+			'xtype' => 'textfield'
+			,'value' => 'fullname'
+			,'area' => 'office_profile'
+		)
 		,'profile_frontend_css' => array(
 			'xtype' => 'textfield'
 			,'value' => '[[+cssUrl]]profile/default.css'

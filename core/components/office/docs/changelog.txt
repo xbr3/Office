@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.8.1
+==============
+- [Profile] Added system setting "office_profile_required_fields" for requirement from users to fill in this fields.
+
 0.8.0
 ==============
 - [Auth] Improved activation email.

@@ -30,6 +30,8 @@ $_lang['setting_office_auth_page_id'] = 'Auth page id';
 $_lang['setting_office_auth_page_id_desc'] = 'Id of the site page, where controller Auth is called. This setting is automatically filled in when you call the controller first time.';
 $_lang['setting_office_auth_page_id'] = 'Profile page id';
 $_lang['setting_office_auth_page_id_desc'] = 'Id of the site page, where controller Profile is called. This setting is automatically filled in when you call the controller first time.';
+$_lang['setting_office_profile_required_fields'] = 'Required fields of profile';
+$_lang['setting_office_profile_required_fields_desc'] = 'Specify required user profile fields. The user will constantly go to edit profile, while not fill in these fields.';
 
 $_lang['setting_office_zp_interface'] = 'Interface identity';
 $_lang['setting_office_zp_interface_desc'] = 'Integer representing the payment interface, which you gave when registering in the Z-Payment.';
