@@ -23,12 +23,13 @@ Ext.reg('extras-panel-keys',Extras.panel.Keys);
 Extras.grid.Keys = function(config) {
 	config = config || {};
 
+	/*
 	this.exp = new Ext.grid.RowExpander({
 		expandOnDblClick: false
 		,tpl : new Ext.Template('<p class="desc">{description}</p>')
 		,renderer : function(v, p, record){return record.data.description != '' && record.data.description != null ? '<div class="x-grid3-row-expander">&#160;</div>' : '&#160;';}
 	});
-
+	*/
 	Ext.applyIf(config,{
 		id: 'extras-grid-key'
 		,url: Extras.config.connector_url
@@ -40,16 +41,18 @@ Extras.grid.Keys = function(config) {
 		,paging: true
 		,remoteSort: true
 		,plugins: this.exp
-		,columns: [this.exp
-			,{header: _('id'), dataIndex: 'id', width: 50}
-			,{header: _('extras_key'),dataIndex: 'key', width: 200}
+		,columns: [
+			//this.exp
+			{header: _('id'), dataIndex: 'id', width: 40}
+			,{header: _('extras_key'),dataIndex: 'key', width: 140, renderer: {fn: this._renderKey, scope: this}}
 			//,{header: _('extras_vip'), dataIndex: 'vip', width: 50, renderer: this._renderBoolean}
-			,{header: _('extras_active'),dataIndex: 'active',width: 50, renderer: this._renderBoolean}
+			//,{header: _('extras_active'),dataIndex: 'active',width: 50, renderer: this._renderBoolean}
 			//,{header: _('extras_packages'), dataIndex: 'packages', width: 50}
 			,{header: _('extras_downloaded'), dataIndex: 'downloads', width: 50}
-			,{header: _('extras_host'), dataIndex: 'host', width: 100}
-			,{header: _('extras_createdon'), dataIndex: 'createdon', width: 100}
-			,{header: _('extras_editedon'), dataIndex: 'editedon', width: 100}
+			,{header: _('extras_host'), dataIndex: 'host', width: 100, renderer: {fn: this._renderReset, scope: this}}
+			//,{header: _('extras_createdon'), dataIndex: 'createdon', width: 100}
+			,{header: '', width: 60, renderer: {fn: this._renderActions, scope: this}}
+			//,{header: _('extras_editedon'), dataIndex: 'editedon', width: 100}
 		]
 		,tbar: [{
 			text: _('extras_key_create')
@@ -62,12 +65,67 @@ Extras.grid.Keys = function(config) {
 				this.updateKey(grid, e, row);
 			}
 		}
+		,viewConfig: {
+			forceFit:true
+			,enableRowBody:true
+			,scrollOffset: 0
+			,autoFill: true
+			,showPreview: true
+			,getRowClass : function(rec){
+				return rec.data.active ? 'office-grid grid-row-active' : 'office-grid grid-row-inactive';
+			}
+		}
 	});
 	Extras.grid.Keys.superclass.constructor.call(this,config);
 	this.store.un('load');
+	this._makeTemplates();
+	this.on('click', this.onClick, this);
+	console.log(this.plugins)
 };
 Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 	windows: {}
+
+	,_makeTemplates: function() {
+		this.tplActions = new Ext.XTemplate(''
+			+'<div class="row-key-column"><ul>'
+			+'<li><a href="#" class="controlBtn update" onclick="return false;" title="'+_('extras_update')+'">'+_('extras_update')+'</a></li>'
+			+'<li>'
+			+'	<tpl if="active==0">'
+			+'		<a href="#" class="controlBtn activate" onclick="return false;" title="'+_('office_extras_activate')+'">'+_('office_extras_activate')+'</a></li>'
+			+'	</tpl><tpl elseif="active==1">'
+			+'		<a href="#" class="controlBtn deactivate" onclick="return false;" title="'+_('office_extras_deactivate')+'">'+_('office_extras_deactivate')+'</a></li>'
+			+'	</tpl>'
+			+'<li><a href="#" class="controlBtn remove" onclick="return false;" title="'+_('extras_remove')+'">'+_('extras_remove')+'</a></li>'
+			+'</ul>'
+			,{compiled: true}
+		);
+		this.tplReset = new Ext.XTemplate(''
+			+'{host}'
+			+'<tpl if="reset == 0">'
+				+'<br/><a href="#" class="controlBtn reset" onclick="return false;" title="'+_('office_extras_reset_host')+'">'+_('office_extras_reset_host')+'</a></li>'
+			+'</tpl>'
+			,{compiled: true}
+		);
+		this.tplKey = new Ext.XTemplate(''
+			+'{key}'
+			+'<tpl if="description">'
+			+'	<br/><small class="description">{description}</small>'
+			+'</tpl>'
+			,{compiled: true}
+		);
+	}
+
+	,_renderActions: function(v,md,rec) {
+		return this.tplActions.apply(rec.data);
+	}
+
+	,_renderReset: function(v,md,rec) {
+		return this.tplReset.apply(rec.data);
+	}
+
+	,_renderKey: function(v,md,rec) {
+		return this.tplKey.apply(rec.data);
+	}
 
 	,_renderBoolean: function(v) {
 		return v
@@ -75,6 +133,22 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 			: '<span style="color: brown;">' + _('no') + '</span>'
 	}
 
+	,onClick: function(e) {
+		var t = e.getTarget();
+		var elm = t.className.split(' ')[0];
+		if (elm == 'controlBtn') {
+			var action = t.className.split(' ')[1];
+			this.menu.record = this.getSelectionModel().getSelected();
+			switch (action) {
+				case 'update': this.updateKey(this,e); break;
+				case 'reset': this.resetHost(this,e); break;
+				case 'remove': this.removeKey(this,e); break;
+				case 'activate': this.activateKey(this,e); break;
+				case 'deactivate': this.activateKey(this,e); break;
+			}
+		}
+	}
+	/*
 	,getMenu: function(grid,index,event) {
 		var record = grid.getStore().getAt(index).data;
 		var m = [];
@@ -96,8 +170,11 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 		});
 		this.addContextMenuItem(m);
 	}
+	*/
 
 	,createKey: function(btn,e) {
+		var mask = new Ext.LoadMask(this.getEl());
+		mask.show();
 		MODx.Ajax.request({
 			url: Extras.config.connector_url
 			,params: {
@@ -106,9 +183,14 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 			}
 			,listeners: {
 				success: {fn:function(r) {
+					mask.hide();
+					var w = Ext.getCmp('office-window-key-details');
+					if (w) {w.hide().getEl().remove();}
+
 					r.object.id = 0;
-					var w = MODx.load({
+					w = MODx.load({
 						xtype: 'extras-window-key'
+						,id: 'office-window-key-details'
 						,record: r.object
 						,mode: 'create'
 						,title: _('extras_key_create')
@@ -122,6 +204,9 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 					w.fp.getForm().setValues(r.object);
 					w.show(e.target);
 				},scope:this}
+				,failure: function() {
+					mask.hide();
+				}
 			}
 		});
 	}
@@ -130,6 +215,8 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 		if (typeof(row) != 'undefined') {this.menu.record = row.data;}
 		var id = this.menu.record.id;
 
+		var mask = new Ext.LoadMask(this.getEl());
+		mask.show();
 		MODx.Ajax.request({
 			url: Extras.config.connector_url
 			,params: {
@@ -138,8 +225,13 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 			}
 			,listeners: {
 				success: {fn:function(r) {
-					var w = MODx.load({
+					mask.hide();
+					var w = Ext.getCmp('office-window-key-details');
+					if (w) {w.hide().getEl().remove();}
+
+					w = MODx.load({
 						xtype: 'extras-window-key'
+						,id: 'office-window-key-details'
 						,record: r.object
 						,mode: 'update'
 						,action: 'extras/updateKey'
@@ -152,6 +244,33 @@ Ext.extend(Extras.grid.Keys,MODx.grid.Grid,{
 					w.fp.getForm().setValues(r.object);
 					w.show(e.target);
 				},scope:this}
+				,failure: function() {
+					mask.hide();
+				}
+			}
+		});
+	}
+
+	,activateKey: function(btn,e,row) {
+		if (typeof(row) != 'undefined') {this.menu.record = row.data;}
+		var id = this.menu.record.id;
+
+		var mask = new Ext.LoadMask(this.getEl());
+		mask.show();
+		MODx.Ajax.request({
+			url: Extras.config.connector_url
+			,params: {
+				action: 'extras/activateKey'
+				,id: id
+			}
+			,listeners: {
+				success: {fn:function(r) {
+					mask.hide();
+					this.refresh();
+				},scope:this}
+				,failure: function() {
+					mask.hide();
+				}
 			}
 		});
 	}
@@ -215,7 +334,7 @@ Extras.window.Key = function(config) {
 		,resizable: false
 		,maximizable: false
 		,collapsible: false
-		,modal: true
+		,modal: false
 		,fields: this.getKeyFields(config)
 		/*
 		,fields: [{
@@ -238,7 +357,7 @@ Ext.extend(Extras.window.Key,MODx.Window,{
 			{xtype: 'hidden', name: 'id'}
 			,{xtype: 'textfield', name: 'key', fieldLabel: _('extras_key'), anchor: '100%', allowBlank: false, readOnly: true}
 			,{xtype: 'textarea', name: 'description', fieldLabel: _('extras_description'), height: 100, anchor: '100%'}
-			,{xtype: 'xcheckbox', name: 'active', fieldLabel: _('extras_active')}
+			//,{xtype: 'hidden', name: 'active'}
 		];
 	}
 

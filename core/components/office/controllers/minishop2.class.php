@@ -18,7 +18,7 @@ class officeMS2Controller extends officeDefaultController {
 
 
 	public function getLanguageTopics() {
-		return array('office:minishop2', 'minishop2:default', 'minishop2:manager', 'minishop2:product');
+		return array('office:minishop2');
 	}
 
 	public function initialize($ctx = 'web') {
@@ -30,7 +30,7 @@ class officeMS2Controller extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			$this->modx->sendUnauthorizedPage();
+			//$this->modx->sendUnauthorizedPage();
 			return '';
 		}
 		else {
@@ -44,8 +44,7 @@ class officeMS2Controller extends officeDefaultController {
 					'minishop2:default'
 				), 'minishop2/lexicon');
 				$this->office->addClientJs(array(
-					'/assets/components/minishop2/js/mgr/minishop2.js'
-					,'/assets/components/minishop2/js/mgr/misc/ms2.utils.js'
+					$this->office->config['jsUrl'] . 'minishop2/minishop2.js'
 					,$this->office->config['jsUrl'] . 'minishop2/misc.combo.js'
 					,$this->office->config['jsUrl'] . 'minishop2/orders.grid.js'
 					,str_replace($config['pl'], $config['vl'], $js)
@@ -69,15 +68,21 @@ class officeMS2Controller extends officeDefaultController {
 
 	public function setConfig() {
 		$grid_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_grid_fields', null, 'num,status,cost,weight,delivery,payment,createdon,updatedon', true)));
-		if (!in_array('id', $grid_fields)) {$grid_fields[] = 'id';}
+		$grid_fields = array_unique(array_merge($grid_fields, array('id','details')));
 
-		//var_dump($of_all);die;
+		$order_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_form_fields')));
+		$address_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_address_fields')));
+		$product_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_product_fields', null, '')));
+		$product_fields = array_values(array_unique(array_merge($product_fields, array('product_pagetitle','url'))));
 
 		$this->modx->regClientScript(str_replace('				', '', '
 			<script type="text/javascript">
 				MODx.config.ms2_date_format = "'.str_replace('"','\"', $this->modx->getOption('office_ms2_date_format')).'";
 				MODx.config.default_per_page = "'.$this->modx->getOption('default_per_page').'";
 				MODx.config.order_grid_fields = '.$this->modx->toJSON($grid_fields).';
+				MODx.config.order_form_fields = '.$this->modx->toJSON($order_fields).';
+				MODx.config.order_address_fields = '.$this->modx->toJSON($address_fields).';
+				MODx.config.order_product_fields = '.$this->modx->toJSON($product_fields).';
 			</script>
 		'), true);
 	}

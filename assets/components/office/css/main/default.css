@@ -32,3 +32,8 @@ ul.x-tab-strip-top {
 	margin: 0 !important;
 	padding: 0 !important;
 }
+
+#office-preloader {
+	background: url(images/preloader.gif) center no-repeat;
+	height: 128px;
+}

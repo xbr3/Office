@@ -1,4 +1,4 @@
-miniShop2.panel.Orders = function(config) {
+OfficeMS2.panel.Orders = function(config) {
 	config = config || {};
 	Ext.applyIf(config,{
 		layout: 'form'
@@ -14,18 +14,18 @@ miniShop2.panel.Orders = function(config) {
 			,width: '97%'
 		}]
 	});
-	miniShop2.panel.Orders.superclass.constructor.call(this,config);
+	OfficeMS2.panel.Orders.superclass.constructor.call(this,config);
 };
-Ext.extend(miniShop2.panel.Orders,MODx.Panel);
-Ext.reg('minishop2-panel-orders',miniShop2.panel.Orders);
+Ext.extend(OfficeMS2.panel.Orders,MODx.Panel);
+Ext.reg('minishop2-panel-orders',OfficeMS2.panel.Orders);
 
 
-miniShop2.grid.Orders = function(config) {
+OfficeMS2.grid.Orders = function(config) {
 	config = config || {};
 
 	Ext.applyIf(config,{
 		id: 'minishop2-grid-orders'
-		,url: miniShop2.config.connector_url
+		,url: OfficeMS2.config.connector_url
 		,baseParams: {
 			action: 'minishop2/getOrders'
 		}
@@ -43,23 +43,6 @@ miniShop2.grid.Orders = function(config) {
 					select: {fn: this.filterByStatus, scope:this}
 				}
 			}
-			/*,'->',{
-				xtype: 'textfield'
-				,name: 'query'
-				,width: 200
-				,id: 'minishop2-orders-search'
-				,emptyText: _('ms2_search')
-				,listeners: {
-					render: {fn:function(tf) {tf.getEl().addKeyListener(Ext.EventObject.ENTER,function() {this.FilterByQuery(tf);},this);},scope:this}
-				}
-			},{
-				xtype: 'button'
-				,id: 'minishop2-orders-clear'
-				,text: _('ms2_search_clear')
-				,listeners: {
-					click: {fn: this.clearFilter, scope: this}
-				}
-			}*/
 		]
 		,listeners: {
 			rowDblClick: function(grid, rowIndex, e) {
@@ -68,50 +51,79 @@ miniShop2.grid.Orders = function(config) {
 			}
 		}
 	});
-	miniShop2.grid.Orders.superclass.constructor.call(this,config);
-	this.changed = false;
+	OfficeMS2.grid.Orders.superclass.constructor.call(this,config);
+	this._makeTemplates();
+	this.on('click', this.onClick, this);
 };
-Ext.extend(miniShop2.grid.Orders,MODx.grid.Grid,{
+Ext.extend(OfficeMS2.grid.Orders,MODx.grid.Grid,{
 	windows: {}
 
+	,_makeTemplates: function() {
+		this.tplActions = new Ext.XTemplate(''
+			+'<div class="row-details-column">'
+			+'<a href="#" class="controlBtn details" onclick="return false;" title="'+_('office_ms2_menu_details')+'">'+_('office_ms2_menu_details')+'</a>'
+			+'</div>'
+			,{compiled: true}
+		);
+	}
+
+	,_renderActions: function(v,md,rec) {
+		return this.tplActions.apply(rec.data);
+	}
+
+	/*
 	,getMenu: function() {
 		var m = [];
 		m.push({
-			text: _('ms2_menu_details')
+			text: _('office_ms2_menu_details')
 			,handler: this.viewOrder
 		});
 		this.addContextMenuItem(m);
 	}
+	*/
+
+	,onClick: function(e) {
+		var t = e.getTarget();
+		var elm = t.className.split(' ')[0];
+		if (elm == 'controlBtn') {
+			var action = t.className.split(' ')[1];
+			this.menu.record = this.getSelectionModel().getSelected();
+			switch (action) {
+				case 'details': this.viewOrder(this,e); break;
+			}
+		}
+	}
 
 	,getColumns: function() {
-		var fields = {
-			id: {header: _('ms2_id'),dataIndex: 'id',width: 50, hidden: true}
-			//,user_id: {header: _('ms2_user_id'),dataIndex: 'user_id',width: 50, hidden: true}
-
-			,createdon: {header: _('ms2_createdon'),dataIndex: 'createdon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
-			,updatedon: {header: _('ms2_updatedon'),dataIndex: 'updatedon',width: 75, sortable: true, renderer: miniShop2.utils.formatDate}
-
-			,num: {header: _('ms2_num'),dataIndex: 'num',width: 50, sortable: true}
-			,cost: {header: _('ms2_cost'),dataIndex: 'cost',width: 75, sortable: true}
-			,cart_cost: {header: _('ms2_cart_cost'),dataIndex: 'cart_cost',width: 75, sortable: true}
-			,delivery_cost: {header: _('ms2_delivery_cost'),dataIndex: 'delivery_cost',width: 75, sortable: true}
-
-			,weight: {header: _('ms2_weight'),dataIndex: 'weight',width: 50, sortable: true}
-			,status: {header: _('ms2_status'),dataIndex: 'status',width: 75, sortable: true}
-			,delivery: {header: _('ms2_delivery'),dataIndex: 'delivery',width: 75, sortable: true}
-			,payment: {header: _('ms2_payment'),dataIndex: 'payment',width: 75, sortable: true}
-			//,address: {header: _('ms2_address'),dataIndex: 'address',width: 50, sortable: true}
-			//,context: {header: _('ms2_context'),dataIndex: 'context',width: 50, sortable: true}
-
-			,customer: {header: _('ms2_customer'),dataIndex: 'customer',width: 150, sortable: true}
-			,receiver: {header: _('ms2_receiver'),dataIndex: 'receiver',width: 150, sortable: true}
+		var all = {
+			id: {width: 50, hidden: true}
+			//,user_id: {width: 50, hidden: true}
+			,createdon: {width: 75, sortable: true, renderer: OfficeMS2.utils.formatDate}
+			,updatedon: {width: 75, sortable: true, renderer: OfficeMS2.utils.formatDate}
+			,num: {width: 50, sortable: true}
+			,cost: {width: 75, sortable: true}
+			,cart_cost: {width: 75, sortable: true}
+			,delivery_cost: {width: 75, sortable: true}
+			,weight: {width: 50, sortable: true}
+			,status: {width: 75, sortable: true}
+			,delivery: {width: 75, sortable: true}
+			,payment: {width: 75, sortable: true}
+			//,address: {width: 50, sortable: true}
+			//,context: {width: 50, sortable: true}
+			,customer: {width: 150, sortable: true}
+			,receiver: {width: 150, sortable: true}
+			,details: {width: 50, renderer: {fn:this._renderActions,scope:this}}
 		};
 
 		var columns = [];
 		for(var i=0; i < MODx.config.order_grid_fields.length; i++) {
 			var field = MODx.config.order_grid_fields[i];
-			if (fields[field]) {
-				columns.push(fields[field]);
+			if (all[field]) {
+				Ext.applyIf(all[field], {
+					header: _('office_ms2_' + field)
+					,dataIndex: field
+				});
+				columns.push(all[field]);
 			}
 		}
 
@@ -143,21 +155,25 @@ Ext.extend(miniShop2.grid.Orders,MODx.grid.Grid,{
 		if (typeof(row) != 'undefined') {this.menu.record = row.data;}
 		var id = this.menu.record.id;
 
+		var mask = new Ext.LoadMask(this.getEl());
+		mask.show();
 		MODx.Ajax.request({
-			url: miniShop2.config.connector_url
+			url: OfficeMS2.config.connector_url
 			,params: {
 				action: 'minishop2/getOrder'
 				,id: id
 			}
 			,listeners: {
 				success: {fn:function(r) {
+					mask.hide();
 					var w = Ext.getCmp('minishop2-window-order-details');
 					if (w) {w.hide().getEl().remove();}
 
 					w = MODx.load({
 						xtype: 'minishop2-window-order-details'
 						,id: 'minishop2-window-order-details'
-						,record:r.object
+						,record: r.object
+						,order_id: id
 						,listeners: {
 							success: {fn:function() {this.refresh();},scope:this}
 							,hide: {fn: function() {this.getEl().remove();}}
@@ -165,8 +181,11 @@ Ext.extend(miniShop2.grid.Orders,MODx.grid.Grid,{
 					});
 					w.fp.getForm().reset();
 					w.fp.getForm().setValues(r.object);
-					w.show(e.target,function() {w.setPosition(null,100)},this);
+					w.show(e.target);
 				},scope:this}
+				,failure: function() {
+					mask.hide();
+				}
 			}
 		});
 	}
@@ -184,24 +203,24 @@ Ext.extend(miniShop2.grid.Orders,MODx.grid.Grid,{
 		});
 	}
 });
-Ext.reg('minishop2-grid-orders',miniShop2.grid.Orders);
+Ext.reg('minishop2-grid-orders',OfficeMS2.grid.Orders);
 
 
 
-miniShop2.window.ViewOrder = function(config) {
+OfficeMS2.window.ViewOrder = function(config) {
 	config = config || {};
 
 	this.ident = config.ident || 'meuitem'+Ext.id();
 	Ext.applyIf(config,{
-		title: _('ms2_menu_details')
+		title: _('office_ms2_menu_details')
 		,id: this.ident
 		,width: 750
 		,labelAlign: 'top'
-		//,url: miniShop2.config.connector_url
-		//,action: ''
+		,resizable: false
+		,maximizable: false
+		,collapsible: false
 		,fields: {
 			xtype: 'modx-tabs'
-			//,border: true
 			,activeTab: config.activeTab || 0
 			,bodyStyle: { background: 'transparent'}
 			,deferredRender: false
@@ -210,34 +229,45 @@ miniShop2.window.ViewOrder = function(config) {
 			,stateId: 'minishop2-window-order-details'
 			,stateEvents: ['tabchange']
 			,getState:function() {return {activeTab:this.items.indexOf(this.getActiveTab())};}
-			,items: [{
-				title: _('ms2_order')
-				,hideMode: 'offsets'
-				,bodyStyle: 'padding:5px 0;'
-				,defaults: {msgTarget: 'under',border: false}
-				,items: this.getOrderFields(config)
-			},{
-				xtype: 'minishop2-grid-order-products'
-				,title: _('ms2_order_products')
-				,order_id: config.record.id
-			},{
-				layout: 'form'
-				,title: _('ms2_address')
-				,hideMode: 'offsets'
-				,bodyStyle: 'padding:5px 0;'
-				,defaults: {msgTarget: 'under',border: false}
-				,items: this.getAddressFields(config)
-			}]
+			,items: this.getTabs(config)
 		}
 		,buttons: [{text: _('close'),scope: this,handler: function() {this.hide();}}]
 	});
-	miniShop2.window.ViewOrder.superclass.constructor.call(this,config);
+	OfficeMS2.window.ViewOrder.superclass.constructor.call(this,config);
 
 };
-Ext.extend(miniShop2.window.ViewOrder,MODx.Window, {
+Ext.extend(OfficeMS2.window.ViewOrder,MODx.Window, {
 
-	getOrderFields: function(config) {
-		return [{
+	getTabs: function(config) {
+		var tabs = [{
+			title: _('office_ms2_order')
+			,hideMode: 'offsets'
+			,bodyStyle: 'padding:5px 0;'
+			,defaults: {msgTarget: 'under',border: false}
+			,items: this.getOrderFields(config)
+		},{
+			xtype: 'minishop2-grid-order-products'
+			,title: _('office_ms2_order_products')
+			,order_id: config.order_id
+		}];
+
+		var address = this.getAddressFields(config);
+		if (address.length > 0) {
+			tabs.push({
+				layout: 'form'
+				,title: _('office_ms2_address')
+				,hideMode: 'offsets'
+				,bodyStyle: 'padding:5px 0;'
+				,defaults: {msgTarget: 'under',border: false}
+				,items: address
+			});
+		}
+
+		return tabs;
+	}
+
+	,getOrderFields: function(config) {
+		var fields = [{
 			xtype: 'hidden'
 			,name: 'id'
 		},{
@@ -247,91 +277,110 @@ Ext.extend(miniShop2.window.ViewOrder,MODx.Window, {
 			,items: [{
 				columnWidth: .5
 				,layout: 'form'
-				,items: [{xtype: 'displayfield', name: 'fullname', fieldLabel: _('ms2_user'), anchor: '100%', style: 'font-size:1.1em;'}]
+				,items: [{xtype: 'displayfield', name: 'fullname', fieldLabel: _('office_ms2_customer'), anchor: '100%', style: 'font-size:1.1em;'}]
 			},{
 				columnWidth: .5
 				,layout: 'form'
-				,items: [{xtype: 'displayfield', name: 'cost', fieldLabel: _('ms2_order_cost'), anchor: '100%', style: 'font-size:1.1em;'}]
+				,items: [{xtype: 'displayfield', name: 'cost', fieldLabel: _('office_ms2_order_cost'), anchor: '100%', style: 'font-size:1.1em;'}]
 			}]
-		},{
-			xtype: 'fieldset'
-			,layout: 'column'
-			,style: 'padding:15px 5px;text-align:center;'
-			,defaults: {msgTarget: 'under',border: false}
-			,items: [{
-				columnWidth: .33
-				,layout: 'form'
-				,items: [
-					{xtype: 'displayfield', name: 'num', fieldLabel: _('ms2_num'), anchor: '100%', style: 'font-size:1.1em;'}
-					,{xtype: 'displayfield', name: 'weight', fieldLabel: _('ms2_weight'), anchor: '100%'}
-				]
-			},{
-				columnWidth: .33
-				,layout: 'form'
-				,items: [
-					{xtype: 'displayfield', name: 'cart_cost', fieldLabel: _('ms2_cart_cost'), anchor: '100%'}
-					,{xtype: 'displayfield', name: 'delivery', fieldLabel: _('ms2_delivery'), anchor: '100%'}
-				]
-			},{
-				columnWidth: .33
-				,layout: 'form'
-				,items: [
-					{xtype: 'displayfield', name: 'delivery_cost', fieldLabel: _('ms2_delivery_cost'), anchor: '100%'}
-					,{xtype: 'displayfield', name: 'payment', fieldLabel: _('ms2_payment'), anchor: '100%'}
-				]
-			}]
-		},{
-			//html: '<h2>' + _('ms2_order_log') + '</h2>'
-		},{
-			xtype: 'minishop2-grid-order-logs',order_id: config.record.id
 		}];
+
+		var all = {
+			num: {style: 'font-size:1.1em;'}
+			,weight: {},createdon: {},updatedon: {},cart_cost: {},delivery_cost: {},status: {},delivery: {},payment: {}
+		};
+
+		var tmp = [];
+		for (var i=0; i < MODx.config.order_form_fields.length; i++) {
+			var field = MODx.config.order_form_fields[i];
+			if (all[field]) {
+				Ext.applyIf(all[field], {
+					xtype: 'displayfield'
+					,name: field
+					,fieldLabel: _('office_ms2_' + field)
+				});
+				all[field].anchor = '100%';
+				tmp.push(all[field]);
+			}
+		}
+
+		if (tmp.length > 0) {
+			var add = {
+				layout:'column'
+				,xtype: 'fieldset'
+				,style: 'padding:15px 5px;text-align:center;'
+				,defaults: {msgTarget: 'under',border: false}
+				,items: [
+					{columnWidth: .33,layout: 'form',items: []}
+					,{columnWidth: .33,layout: 'form',items: []}
+					,{columnWidth: .33,layout: 'form',items: []}
+				]
+			};
+			for (i=0; i < tmp.length; i++) {
+				field = tmp[i];
+				add.items[i % 3].items.push(field);
+			}
+			fields.push(add);
+		}
+
+		fields.push({xtype: 'minishop2-grid-order-logs',order_id: config.order_id});
+		return fields;
 	}
 
 	,getAddressFields: function(config) {
-		return [
-			{
-				layout: 'column'
-				,defaults: {msgTarget: 'under',border: false}
-				,items: [{
-					columnWidth: .5
-					,layout: 'form'
-					,items: [
-						{xtype: 'displayfield', name: 'addr_receiver', fieldLabel: _('ms2_receiver'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_phone', fieldLabel: _('ms2_phone'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_index', fieldLabel: _('ms2_index'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_country', fieldLabel: _('ms2_country'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_region', fieldLabel: _('ms2_region'), anchor: '100%'}
-					]
-				},{
-					columnWidth: .5
-					,layout: 'form'
-					,items: [
-						{xtype: 'displayfield', name: 'addr_metro', fieldLabel: _('ms2_metro'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_building', fieldLabel: _('ms2_building'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_city', fieldLabel: _('ms2_city'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_street', fieldLabel: _('ms2_street'), anchor: '100%'}
-						,{xtype: 'displayfield', name: 'addr_room', fieldLabel: _('ms2_room'), anchor: '100%'}
-					]
-				}]
+		var all = {receiver: {},phone: {},index: {},country: {},region: {},metro: {},building: {},city: {},street: {},room: {}};
+		var fields = [];
+		var tmp = [];
+		for (var i=0; i < MODx.config.order_address_fields.length; i++) {
+			var field = MODx.config.order_address_fields[i];
+			if (all[field]) {
+				Ext.applyIf(all[field], {
+					xtype: 'displayfield'
+					,name: 'addr_' + field
+					,fieldLabel: _('office_ms2_' + field)
+				});
+				all[field].anchor = '100%';
+				tmp.push(all[field]);
 			}
-			,{xtype: 'displayfield', name: 'addr_comment', fieldLabel: _('ms2_comment'), anchor: '100%'}
-		];
+		}
+
+		if (tmp.length > 0) {
+			var add = {
+				layout:'column'
+				,defaults: {msgTarget: 'under',border: false}
+				,items: [
+					{columnWidth: .5,layout: 'form',items: []}
+					,{columnWidth: .5,layout: 'form',items: []}
+				]
+			};
+			for (i=0; i < tmp.length; i++) {
+				field = tmp[i];
+				add.items[i % 2].items.push(field);
+			}
+			fields.push(add);
+
+			if (MODx.config.order_address_fields.in_array('comment')) {
+				fields.push({xtype: 'displayfield', name: 'addr_comment', fieldLabel: _('office_ms2_comment'), anchor: '100%'});
+			}
+		}
+
+		return fields;
 	}
 
 	,loadDropZones: function() {}
 });
-Ext.reg('minishop2-window-order-details',miniShop2.window.ViewOrder);
+Ext.reg('minishop2-window-order-details',OfficeMS2.window.ViewOrder);
 
 
 
 
 /*------------------------------------*/
-miniShop2.grid.Logs = function(config) {
+OfficeMS2.grid.Logs = function(config) {
 	config = config || {};
 
 	Ext.applyIf(config,{
 		id: this.ident
-		,url: miniShop2.config.connector_url
+		,url: OfficeMS2.config.connector_url
 		,baseParams: {
 			action: 'minishop2/getLog'
 			,order_id: config.order_id
@@ -343,14 +392,14 @@ miniShop2.grid.Logs = function(config) {
 		,paging: true
 		,remoteSort: true
 		,columns: [
-			{header: _('ms2_timestamp'),dataIndex: 'timestamp', sortable: true, renderer: miniShop2.utils.formatDate, width: 100}
-			,{header: _('ms2_action'),dataIndex: 'action', width: 100}
-			,{header: _('ms2_entry'),dataIndex: 'entry', width: 100}
+			{header: _('office_ms2_timestamp'),dataIndex: 'timestamp', sortable: true, renderer: OfficeMS2.utils.formatDate, width: 100}
+			,{header: _('office_ms2_action'),dataIndex: 'action', width: 100}
+			,{header: _('office_ms2_entry'),dataIndex: 'entry', width: 100}
 		]
 	});
-	miniShop2.grid.Logs.superclass.constructor.call(this,config);
+	OfficeMS2.grid.Logs.superclass.constructor.call(this,config);
 };
-Ext.extend(miniShop2.grid.Logs,MODx.grid.Grid, {
+Ext.extend(OfficeMS2.grid.Logs,MODx.grid.Grid, {
 	_loadStore: function() {
 		this.store = new Ext.data.JsonStore({
 			url: this.config.url
@@ -364,50 +413,74 @@ Ext.extend(miniShop2.grid.Logs,MODx.grid.Grid, {
 		});
 	}
 });
-Ext.reg('minishop2-grid-order-logs',miniShop2.grid.Logs);
+Ext.reg('minishop2-grid-order-logs',OfficeMS2.grid.Logs);
 
 
-miniShop2.grid.Products = function(config) {
+OfficeMS2.grid.Products = function(config) {
 	config = config || {};
-
-	this.exp = new Ext.grid.RowExpander({
-		expandOnDblClick: true
-		,tpl : new Ext.Template('<p class="desc">{options}</p>')
-		,renderer : function(v, p, record){return record.data.options != '' && record.data.options != null ? '<div class="x-grid3-row-expander">&#160;</div>' : '&#160;';}
-	});
 
 	Ext.applyIf(config,{
 		id: this.ident
-		,url: miniShop2.config.connector_url
+		,url: OfficeMS2.config.connector_url
 		,baseParams: {
 			action: 'minishop2/getOrderProducts'
 			,order_id: config.order_id
 		}
-		,fields: ['pagetitle','article','weight','count','price','cost','options','url']
+		,fields: MODx.config.order_product_fields
 		,pageSize: Math.round(MODx.config.default_per_page / 2)
 		,autoHeight: true
 		,paging: true
 		,remoteSort: true
-		,plugins: this.exp
-		,columns: [this.exp
-			,{header: _('ms2_id'),dataIndex: 'id', hidden: true, sortable: true, width: 40}
-			,{header: _('ms2_product_pagetitle'),dataIndex: 'pagetitle', width: 100, renderer: this.productLink}
-			,{header: _('ms2_product_article'),dataIndex: 'article', width: 50}
-			,{header: _('ms2_product_weight'),dataIndex: 'weight', sortable: true, width: 50}
-			,{header: _('ms2_product_price'),dataIndex: 'price', sortable: true, width: 50}
-			,{header: _('ms2_count'),dataIndex: 'count', sortable: true, width: 50}
-			,{header: _('ms2_cost'),dataIndex: 'cost', width: 50}
-		]
+		,columns: this.getColumns()
 	});
-	miniShop2.grid.Products.superclass.constructor.call(this,config);
+	OfficeMS2.grid.Products.superclass.constructor.call(this,config);
 };
-Ext.extend(miniShop2.grid.Products,MODx.grid.Grid, {
+Ext.extend(OfficeMS2.grid.Products,MODx.grid.Grid, {
 
 	productLink: function(val,cell,row) {
 		if (!val) {return '';}
 		var url = row.data['url'];
 
 		return '<a href="' + url + '" target="_blank" class="ms2-link">' + val + '</a>'
+	}
+
+	,getColumns: function() {
+		var fields = {
+			id: {hidden: true, sortable: true, width: 40}
+			,product_pagetitle: {header: _('office_ms2_product'), width: 100, renderer: this.productLink}
+			,product_weight: {header: _('office_ms2_product_weight'), width: 50}
+			,product_price: {header: _('office_ms2_product_price'), width: 50}
+			,article: {width: 50}
+			,weight: { sortable: true, width: 50}
+			,price: {sortable: true, width: 50}
+			,count: {sortable: true, width: 50}
+			,cost: {width: 50}
+			,options: {width: 100}
+		};
+
+		var columns = [];
+		for(var i=0; i < MODx.config.order_product_fields.length; i++) {
+			var field = MODx.config.order_product_fields[i];
+			if (fields[field]) {
+				Ext.applyIf(fields[field], {
+					header: _('office_ms2_' + field)
+					,dataIndex: field
+				});
+				columns.push(fields[field]);
+			}
+			else if (/^option_/.test(field)) {
+				columns.push(
+					{header: _(field.replace(/^option_/, 'office_ms2_')), dataIndex: field, width: 50}
+				);
+			}
+			else if (/^product_/.test(field)) {
+				columns.push(
+					{header: _(field.replace(/^product_/, 'office_ms2_')), dataIndex: field, width: 75}
+				);
+			}
+		}
+
+		return columns;
 	}
 
 	,_loadStore: function() {
@@ -423,4 +496,4 @@ Ext.extend(miniShop2.grid.Products,MODx.grid.Grid, {
 		});
 	}
 });
-Ext.reg('minishop2-grid-order-products',miniShop2.grid.Products);
+Ext.reg('minishop2-grid-order-products',OfficeMS2.grid.Products);

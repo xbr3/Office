@@ -78,7 +78,7 @@ class Office {
 							,jsUrl: "'.$this->config['jsUrl'].'"
 							,actionUrl: "'.$this->config['actionUrl'].'"
 							,close_all_message: "'.$this->modx->lexicon('office_message_close_all').'"
-							,pageId: '.$this->modx->resource->id.'
+							,pageId: "'.$this->modx->resource->id.'"
 						};
 						</script>
 					'), true);
@@ -355,7 +355,11 @@ class Office {
 	 */
 	public function addClientExtJS() {
 		$this->modx->regClientCSS($this->config['cssUrl'] . 'main/lib/ext-all-notheme.css');
-		$this->modx->regClientCSS($this->config['cssUrl'] . 'main/lib/xtheme-modx.css');
+
+		$config = $this->makePlaceholders($this->config);
+		if ($css = $this->modx->getOption('office_extjs_css', null, $this->config['cssUrl'] . 'main/lib/xtheme-modx.css', true)) {
+			$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
+		}
 
 		$this->addClientJs(array(
 			'/manager/assets/ext3/adapter/jquery/ext-jquery-adapter.js'

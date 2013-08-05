@@ -25,24 +25,29 @@ class msOrderGetProcessor extends modObjectGetProcessor {
 
 
 	public function cleanup() {
-		$order = $this->object->toArray();
-		$address = $this->object->getOne('Address')->toArray('addr_');
+		$order_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_form_fields', null, '', true)));
+		$order_fields = array_intersect($order_fields, array_keys($this->modx->getFieldMeta('msOrder')));
+		if (!in_array('cost', $order_fields)) {$order_fields[] = 'cost';}
+		unset($order_fields['comment']);
+		$order = array();
+		foreach ($order_fields as $v) {
+			$order[$v] = ($v == 'createdon' || $v == 'updatedon') ? $this->formatDate($this->object->get($v)) : $this->object->get($v);
+		}
+
 		$profile = $this->object->getOne('UserProfile');
+		$array = array_merge($order, array('fullname' => $profile->get('fullname')));
 
-		$array = array_merge($order, $address, array('fullname' => $profile->get('fullname')));
-		if ($tmp = $this->object->getOne('Status')) {
-			$array['status'] = $tmp->get('name');
-		}
-		if ($tmp = $this->object->getOne('Delivery')) {
-			$array['delivery'] = $tmp->get('name');
-		}
-		if ($tmp = $this->object->getOne('Payment')) {
-			$array['payment'] = $tmp->get('name');
-		}
-		unset($array['comment']);
+		if (in_array('status', $order_fields) && $tmp = $this->object->getOne('Status')) {$array['status'] = $tmp->get('name');}
+		if (in_array('delivery', $order_fields) && $tmp = $this->object->getOne('Delivery')) {$array['delivery'] = $tmp->get('name');}
+		if (in_array('payment', $order_fields) && $tmp = $this->object->getOne('Payment')) {$array['payment'] = $tmp->get('name');}
 
-		$array['createdon'] = $this->formatDate($array['createdon']);
-		$array['updatedon'] = $this->formatDate($array['updatedon']);
+		$address_fields = array_map('trim', explode(',', $this->modx->getOption('office_ms2_order_address_fields', null, '', true)));
+		$address_fields = array_intersect($address_fields, array_keys($this->modx->getFieldMeta('msOrderAddress')));
+		/* @var msOrderAddress $address */
+		$address = $this->object->getOne('Address');
+		foreach ($address_fields as $v) {
+			$array['addr_'.$v] = $address->get($v);
+		}
 
 		return $this->success('', $array);
 	}

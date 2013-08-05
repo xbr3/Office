@@ -7,10 +7,15 @@ switch ($modx->event->name) {
 				$modx->runProcessor('security/logout');
 				$modx->sendRedirect($modx->makeUrl($modx->getOption('site_start'),'','','full'));
 			}
-
-			$page_id = $modx->getOption('office_profile_page_id');
-			if (trim($modx->user->Profile->fullname) == '' && !empty($page_id) && $modx->resource->id != $page_id && $modx->resource->parent != $page_id) {
-				$modx->sendRedirect($modx->makeUrl($page_id,'','','full'));
+			else if ($page_id = $modx->getOption('office_profile_page_id')) {
+				if (!empty($page_id)
+					&& trim($modx->user->Profile->fullname) == ''
+					&& $modx->resource->id != $page_id
+					&& $modx->resource->parent != $page_id
+					&& @$_GET['action'] != 'auth/logout'
+				) {
+					$modx->sendRedirect($modx->makeUrl($page_id,'','','full'));
+				}
 			}
 		};
 	break;

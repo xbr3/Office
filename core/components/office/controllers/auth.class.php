@@ -27,8 +27,8 @@ class officeAuthController extends officeDefaultController {
 			$_SESSION['Office']['Auth'] = $this->config;
 		}
 
-		$page_id = $this->modx->getOption('office_auth_page_id');
-		if (empty($page_id)) {
+		$this->config['page_id'] = $this->modx->getOption('office_auth_page_id');
+		if (empty($this->config['page_id'])) {
 			/* @var modSystemSetting $setting */
 			if ($setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
 				$setting->set('value', $this->modx->resource->id);
@@ -36,8 +36,8 @@ class officeAuthController extends officeDefaultController {
 			}
 		}
 
-		if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $page_id;}
-		if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $page_id;}
+		if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $this->config['page_id'];}
+		if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $this->config['page_id'];}
 	}
 
 
@@ -125,22 +125,26 @@ class officeAuthController extends officeDefaultController {
 				,'hash' => $activationHash.':'.$newPassword
 			), 'full');
 
-		$send = $user->sendEmail(
-			$this->modx->getChunk(
-				$this->config['tplActivate']
-				,array_merge(
-					$user->getOne('Profile')->toArray()
-					,$user->toArray()
-					,array('link' => $link)
-				)
+		$content = $this->modx->getChunk(
+			$this->config['tplActivate']
+			,array_merge(
+				$user->getOne('Profile')->toArray()
+				,$user->toArray()
+				,array('link' => $link)
 			)
+		);
+		$maxIterations= (integer) $this->modx->getOption('parser_max_iterations', null, 10);
+		$this->modx->getParser()->processElementTags('', $content, false, false, '[[', ']]', array(), $maxIterations);
+		$this->modx->getParser()->processElementTags('', $content, true, true, '[[', ']]', array(), $maxIterations);
+		$send = $user->sendEmail(
+			$content
 			,array(
 				'subject' => $this->modx->lexicon('office_auth_email_subject')
 			)
 		);
 
 		if ($send !== true) {
-			$errors = $this->modx->mail->mailer->errorInfo();
+			$errors = $this->modx->mail->mailer->errorInfo;
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Unable to send email to '.$email.'. Message: '.$errors);
 			return $this->error($this->modx->lexicon('office_auth_err_send', array('errors' => $errors)));
 		}
@@ -218,10 +222,18 @@ class officeAuthController extends officeDefaultController {
 	 * @return nothing
 	 * */
 	function sendRedirect($action = '') {
+		$error_pages = array($this->modx->getOption('error_page'), $this->modx->getOption('unauthorized_page'));
+
 		if ($action == 'login' && $this->config['loginResourceId']) {
+			if (in_array($this->config['loginResourceId'], $error_pages)) {
+				$this->config['loginResourceId'] = $this->config['page_id'];
+			}
 			$url = $this->modx->makeUrl($this->config['loginResourceId'],'','','full');
 		}
 		else if ($action == 'logout' && $this->config['logoutResourceId']) {
+			if (in_array($this->config['logoutResourceId'], $error_pages)) {
+				$this->config['logoutResourceId'] = $this->config['page_id'];
+			}
 			$url = $this->modx->makeUrl($this->config['logoutResourceId'],'','','full');
 		}
 		else {

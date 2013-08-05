@@ -1,8 +1,23 @@
 Changelog for Office.
 
+0.8.0
+==============
+- [Auth] Improved activation email.
+- [Auth] Fixed "loginResourceId" and "logoutResourceId".
+- [Profile] Fixed and improved update of profile.
+- [Profile] If user is not authenticated, controller do not redirects to unathorized page anymore.
+- [miniShop2] Fixed work with miniShop2, called on page.
+- [miniShop2] Improved orders table.
+- [miniShop2] If user is not authenticated, controller do not redirects to unathorized page anymore.
+- [miniShop2] Moved "details" link from context menu to the grid column.
+
 0.7.1
 ==============
-- [miniShop2] Customizable orders grid
+- [Main] Added "office_extjs_css" system setting for specifying custom css for ExtJS.
+- [miniShop2] Customizable orders grid.
+- [miniShop2] Customizable order form.
+- [miniShop2] Customizable address form.
+- [miniShop2] Customizable order product grid.
 
 0.7.0
 ==============

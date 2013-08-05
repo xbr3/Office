@@ -95,6 +95,12 @@ class msOrderGetListProcessor extends modObjectGetListProcessor {
 
 	public function prepareArray(array $data) {
 		$data['status'] = '<span style="color:#'.$data['color'].';">'.$data['status'].'</span>';
+		unset($data['color']);
+		if (isset($data['cost'])) {$data['cost'] = round($data['cost'],2);}
+		if (isset($data['cart_cost'])) {$data['cost'] = round($data['cost'],2);}
+		if (isset($data['delivery_cost'])) {$data['cost'] = round($data['delivery_cost'],2);}
+		if (isset($data['weight'])) {$data['cost'] = round($data['weight'],3);}
+
 		return $data;
 	}
 

@@ -24,6 +24,9 @@ class extraKeyGetListProcessor extends modObjectGetListProcessor {
 	/* @var extraKey $object */
 	public function prepareRow(xPDOObject $object) {
 		$array = $object->toArray('', true);
+		if (empty($array['host'])) {
+			$array['reset'] = 1;
+		}
 		return $array;
 	}
 

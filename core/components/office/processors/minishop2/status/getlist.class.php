@@ -6,10 +6,9 @@ class msOrderStatusGetListProcessor extends modObjectGetListProcessor {
 	public $defaultSortDirection  = 'asc';
 
 	public function prepareQueryBeforeCount(xPDOQuery $c) {
-		if ($this->getProperty('combo')) {
-			$c->select('id,name');
-			$c->where(array('active' => 1));
-		}
+		$c->select('id,name');
+		$c->where(array('active' => 1));
+
 		return $c;
 	}
 
@@ -25,7 +24,7 @@ class msOrderStatusGetListProcessor extends modObjectGetListProcessor {
 	public function outputArray(array $array,$count = false) {
 		$array = array_merge_recursive(array(array(
 			'id' => 0
-			,'name' => $this->modx->lexicon('ms2_all')
+			,'name' => $this->modx->lexicon('office_ms2_all')
 		)), $array);
 
 		return parent::outputArray($array, $count);

@@ -30,7 +30,7 @@ class officeExtrasKeysController extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			$this->modx->sendUnauthorizedPage();
+			//$this->modx->sendUnauthorizedPage();
 			return '';
 		}
 		else {
@@ -103,6 +103,12 @@ class officeExtrasKeysController extends officeDefaultController {
 	public function resetHost($data) {
 		/* @var modProcessorResponse $response */
 		$response = $this->office->runProcessor('extras/key/reset', $data);
+		if (!isset($response->response['data'])) {$response->response['data'] = array();}
+		return $this->response($response);
+	}
+	public function activateKey($data) {
+		/* @var modProcessorResponse $response */
+		$response = $this->office->runProcessor('extras/key/activate', $data);
 		if (!isset($response->response['data'])) {$response->response['data'] = array();}
 		return $this->response($response);
 	}

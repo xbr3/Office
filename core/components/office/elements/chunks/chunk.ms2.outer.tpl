@@ -1,1 +1,3 @@
-<div id="office-minishop2-grid"></div>
+<div id="office-minishop2-grid">
+	<div id="office-preloader"></div>
+</div>

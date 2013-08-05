@@ -15,6 +15,7 @@ Office.Profile = {
 		$(document).on('submit', selector, function(e) {
 			$(this).ajaxSubmit({
 				url: OfficeConfig.actionUrl
+				,dataType: 'json'
 				,beforeSubmit: function(data) {
 					Office.Message.close();
 					$(selector + ' .message').text('');
@@ -22,17 +23,25 @@ Office.Profile = {
 					data.push({name: 'pageId', value: OfficeConfig.pageId});
 				}
 				,success: function(response) {
-					var data = $.parseJSON(response);
-					if (data.success) {
-						Office.Message.success(data.message);
+					var i;
+					if (response.success) {
+						Office.Message.success(response.message);
+						if (response.data) {
+							for (i in response.data) {
+								if (response.data.hasOwnProperty(i)) {
+									$(selector + ' [name="'+i+'"]').val(response.data[i]);
+								}
+							}
+						}
 					}
 					else {
-						Office.Message.error(data.message, false);
-					}
-
-					if (data.data) {
-						for (var i in data.data) {
-							$(selector + ' [name="'+i+'"]').parent().find('.message').text(data.data[i]);
+						Office.Message.error(response.message, false);
+						if (response.data) {
+							for (i in response.data) {
+								if (response.data.hasOwnProperty(i)) {
+									$(selector + ' [name="'+i+'"]').parent().find('.message').text(response.data[i]);
+								}
+							}
 						}
 					}
 				}

@@ -8,6 +8,10 @@ $tmp = array(
 			'xtype' => 'textfield'
 			,'value' => '[[+cssUrl]]main/default.css'
 		)
+		,'extjs_css' => array(
+			'xtype' => 'textfield'
+			,'value' => ''
+		)
 		,'frontend_js' => array(
 			'xtype' => 'textfield'
 			,'value' => '[[+jsUrl]]main/default.js'
@@ -82,7 +86,7 @@ $tmp = array(
 	,'minishop2' => array(
 		'ms2_frontend_css' => array(
 			'xtype' => 'textfield'
-			,'value' => ''
+			,'value' => '[[+cssUrl]]minishop2/default.css'
 			,'area' => 'office_ms2'
 		)
 		,'ms2_frontend_js' => array(
@@ -98,6 +102,21 @@ $tmp = array(
 		,'ms2_order_grid_fields' => array(
 			'xtype' => 'textarea'
 			,'value' => 'num,status,cost,weight,delivery,payment,createdon,updatedon'
+			,'area' => 'office_ms2'
+		)
+		,'ms2_order_form_fields' => array(
+			'xtype' => 'textarea'
+			,'value' => 'num,cart_cost,delivery_cost,weight,payment,delivery'
+			,'area' => 'office_ms2'
+		)
+		,'ms2_order_address_fields' => array(
+			'xtype' => 'textarea'
+			,'value' => 'receiver,phone,index,country,region,city,metro,street,building,room,comment'
+			,'area' => 'office_ms2'
+		)
+		,'ms2_order_product_fields' => array(
+			'xtype' => 'textarea'
+			,'value' => 'product_pagetitle,product_article,weight,price,count,cost'
 			,'area' => 'office_ms2'
 		)
 	)

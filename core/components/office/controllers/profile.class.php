@@ -38,7 +38,7 @@ class officeProfileController extends officeDefaultController {
 
 	public function defaultAction() {
 		if (!$this->modx->user->isAuthenticated()) {
-			$this->modx->sendUnauthorizedPage();
+			//$this->modx->sendUnauthorizedPage();
 			return '';
 		}
 		else {
@@ -72,14 +72,25 @@ class officeProfileController extends officeDefaultController {
 		$fields = array();
 		$profileFields = explode(',', $this->config['profileFields']);
 		foreach ($profileFields as $field) {
-			@list($key, $length) = explode(':', $field);
-			if (!empty($data[$key])) {
-				$fields[$key] = $this->Sanitize($data[$key], $length);
+			if (strpos($field, ':') !== false) {
+				list($key, $length) = explode(':', $field);
+			}
+			else {
+				$key = $field;
+				$length = 0;
+			}
+
+			if (isset($data[$key])) {
+				if ($key == 'comment') {
+					$fields[$key] = empty($length) ? $data[$key] : substr($data[$key], $length);
+				}
+				else {
+					$fields[$key] = $this->Sanitize($data[$key], $length);
+				}
 			}
 		}
 
 		$fields['requiredFields'] = array_map('trim', explode(',', $this->config['requiredFields']));
-
 		$current_email = $this->modx->user->get('username');
 		$new_email =  @$fields['email'];
 		$fields['username'] = $current_email;
@@ -105,7 +116,16 @@ class officeProfileController extends officeDefaultController {
 				: $this->success($this->modx->lexicon('office_profile_msg_save_email'));
 		}
 		else {
-			return $this->success($this->modx->lexicon('office_profile_msg_save'));
+			$saved = array();
+			$tmp = $this->modx->user->getOne('Profile')->toArray();
+			$tmp = array_merge($response->response['object'], $tmp);
+			foreach ($fields as $k => $v) {
+				if (isset($tmp[$k]) && isset($data[$k])) {
+					$saved[$k] = $tmp[$k];
+				}
+			}
+			//if ($_SERVER['REMOTE_ADDR'] == '194.190.81.82') {}
+			return $this->success($this->modx->lexicon('office_profile_msg_save'), $saved);
 		}
 	}
 
@@ -121,7 +141,9 @@ class officeProfileController extends officeDefaultController {
 		$expr = '/[^-_a-zа-яё0-9@\s\.\,\:\/\\\]+/iu';
 		$sanitized = trim(preg_replace($expr, '', $string));
 
-		return substr($sanitized, 0, $length);
+		return !empty($length)
+			? substr($sanitized, 0, $length)
+			: $sanitized;
 	}
 
 
@@ -162,7 +184,7 @@ class officeProfileController extends officeDefaultController {
 		);
 
 		return ($send !== true)
-			? $this->modx->mail->mailer->errorInfo()
+			? $this->modx->mail->mailer->errorInfo
 			: true;
 	}
 

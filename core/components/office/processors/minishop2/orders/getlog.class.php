@@ -68,8 +68,9 @@ class msOrderLogGetListProcessor extends modObjectGetListProcessor {
 	public function prepareArray(array $data) {
 		if (!empty($data['color'])) {
 			$data['entry'] = '<span style="color:#'.$data['color'].';">'.$data['entry'].'</span>';
+			unset($data['color']);
 		}
-		$data['action'] = $this->modx->lexicon('ms2_'.$data['action']);
+		$data['action'] = $this->modx->lexicon('office_ms2_'.$data['action']);
 
 		return $data;
 	}

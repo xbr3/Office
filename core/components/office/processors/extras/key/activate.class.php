@@ -1,6 +1,6 @@
 <?php
 
-class extraKeyUpdateProcessor extends modObjectUpdateProcessor {
+class extraKeyActivateProcessor extends modObjectUpdateProcessor {
 	/* @var extraKey $object */
 	public $object;
 	public $objectType = 'extraKey';
@@ -22,19 +22,14 @@ class extraKeyUpdateProcessor extends modObjectUpdateProcessor {
 		return true;
 	}
 
-	public function beforeSet() {
-		$properties = array(
-			'description' => $this->getProperty('description', null)
-			,'user_id' => $this->modx->user->id
-			,'editedon' => time()
-		);
-		$this->properties = array();
 
-		$this->setProperties($properties);
+	public function beforeSet() {
+		$active = !$this->object->get('active');
+		$this->setProperties(array('active' => $active));
 
 		return !$this->hasErrors();
 	}
 
 }
 
-return 'extraKeyUpdateProcessor';
+return 'extraKeyActivateProcessor';

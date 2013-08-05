@@ -13,7 +13,7 @@ class extraKeyCreateProcessor extends modObjectCreateProcessor {
 	public function beforeSet() {
 		$properties = array(
 			'key' => $this->getProperty('key')
-			,'active' => $this->getProperty('active', false)
+			,'active' => true
 			,'description' => $this->getProperty('description', null)
 			,'user_id' => $this->modx->user->id
 			,'createdon' => time()
