@@ -82,7 +82,7 @@ class Office {
 						};
 						</script>
 					'), true);
-						if (!empty($js) && preg_match('/\.js$/i', $js)) {
+						if (!empty($js) && preg_match('/\.js/i', $js)) {
 							$this->modx->regClientScript(str_replace('							', '', '
 							<script type="text/javascript">
 							if(typeof jQuery == "undefined") {
@@ -362,25 +362,25 @@ class Office {
 		}
 
 		$this->addClientJs(array(
-			'/manager/assets/ext3/adapter/jquery/ext-jquery-adapter.js'
-			,'/manager/assets/ext3/ext-all.js'
+			MODX_MANAGER_URL.'assets/ext3/adapter/jquery/ext-jquery-adapter.js'
+			,MODX_MANAGER_URL.'assets/ext3/ext-all.js'
 		), 'main/ext');
 
 		$this->addClientJs(array(
-			'/manager/assets/modext/core/modx.js'
+			MODX_MANAGER_URL.'assets/modext/core/modx.js'
 		), 'main/modx');
 
 		$this->addClientJs(array(
-			'/manager/assets/modext/core/modx.localization.js'
-			,'/manager/assets/modext/util/utilities.js'
-			,'/manager/assets/modext/util/datetime.js'
-			,'/manager/assets/modext/core/modx.component.js'
-			,'/manager/assets/modext/widgets/core/modx.panel.js'
-			,'/manager/assets/modext/widgets/core/modx.tabs.js'
-			,'/manager/assets/modext/widgets/core/modx.window.js'
-			,'/manager/assets/modext/widgets/core/modx.tree.js'
-			,'/manager/assets/modext/widgets/core/modx.combo.js'
-			,'/manager/assets/modext/widgets/core/modx.grid.js'
+			MODX_MANAGER_URL.'assets/modext/core/modx.localization.js'
+			,MODX_MANAGER_URL.'assets/modext/util/utilities.js'
+			,MODX_MANAGER_URL.'assets/modext/util/datetime.js'
+			,MODX_MANAGER_URL.'assets/modext/core/modx.component.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.panel.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.tabs.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.window.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.tree.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.combo.js'
+			,MODX_MANAGER_URL.'assets/modext/widgets/core/modx.grid.js'
 		), 'main/widgets');
 	}
 
