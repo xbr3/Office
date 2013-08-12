@@ -49,6 +49,7 @@ class msOrderGetProcessor extends modObjectGetProcessor {
 			$array['addr_'.$v] = $address->get($v);
 		}
 
+		$array = array_map('strip_tags', $array);
 		return $this->success('', $array);
 	}
 

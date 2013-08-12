@@ -29,7 +29,7 @@ class extraKeyUpdateProcessor extends modObjectUpdateProcessor {
 			,'editedon' => time()
 		);
 		$this->properties = array();
-
+		$properties = array_map('strip_tags', $properties);
 		$this->setProperties($properties);
 
 		return !$this->hasErrors();

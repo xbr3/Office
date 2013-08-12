@@ -101,6 +101,7 @@ class msOrderGetListProcessor extends modObjectGetListProcessor {
 		if (isset($data['delivery_cost'])) {$data['cost'] = round($data['delivery_cost'],2);}
 		if (isset($data['weight'])) {$data['cost'] = round($data['weight'],3);}
 
+		$data = array_map('strip_tags', $data);
 		return $data;
 	}
 

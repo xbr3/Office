@@ -27,6 +27,8 @@ class extraKeyGetListProcessor extends modObjectGetListProcessor {
 		if (empty($array['host'])) {
 			$array['reset'] = 1;
 		}
+
+		$array = array_map('strip_tags', $array);
 		return $array;
 	}
 

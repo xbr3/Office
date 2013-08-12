@@ -20,6 +20,7 @@ class extraKeyCreateProcessor extends modObjectCreateProcessor {
 			,'editedon' => 0
 		);
 		$this->properties = array();
+		$properties = array_map('strip_tags', $properties);
 		$this->setProperties($properties);
 
 		foreach (array('user_id','key') as $v) {
