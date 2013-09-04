@@ -5,10 +5,15 @@ define('PKG_NAME_LOWER', strtolower(PKG_NAME));
 
 define('PKG_VERSION', '0.8.3');
 define('PKG_RELEASE', 'pl');
-
+define('PKG_AUTO_INSTALL', true);
 
 /* define paths */
-define('MODX_BASE_PATH', dirname(dirname(dirname(__FILE__))) . '/');
+if (is_file(dirname(dirname(dirname(__FILE__))) . '/index.php' )) {
+	define('MODX_BASE_PATH', dirname(dirname(dirname(__FILE__))) . '/');
+}
+else {
+	define('MODX_BASE_PATH', dirname(dirname(dirname(dirname(__FILE__)))) . '/');
+}
 define('MODX_CORE_PATH', MODX_BASE_PATH . 'core/');
 define('MODX_MANAGER_PATH', MODX_BASE_PATH . 'manager/');
 define('MODX_CONNECTORS_PATH', MODX_BASE_PATH . 'connectors/');
