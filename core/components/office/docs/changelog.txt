@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.8.3
+==============
+- Fixed wrong values in MS2 orders grid.
+
 0.8.2
 ==============
 - [Main] Changed hard coded "/manager/" to MODX_MANAGER_URL constant.

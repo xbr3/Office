@@ -97,9 +97,9 @@ class msOrderGetListProcessor extends modObjectGetListProcessor {
 		$data['status'] = '<span style="color:#'.$data['color'].';">'.$data['status'].'</span>';
 		unset($data['color']);
 		if (isset($data['cost'])) {$data['cost'] = round($data['cost'],2);}
-		if (isset($data['cart_cost'])) {$data['cost'] = round($data['cost'],2);}
-		if (isset($data['delivery_cost'])) {$data['cost'] = round($data['delivery_cost'],2);}
-		if (isset($data['weight'])) {$data['cost'] = round($data['weight'],3);}
+		if (isset($data['cart_cost'])) {$data['cart_cost'] = round($data['cart_cost'],2);}
+		if (isset($data['delivery_cost'])) {$data['delivery_cost'] = round($data['delivery_cost'],2);}
+		if (isset($data['weight'])) {$data['weight'] = round($data['weight'],3);}
 
 		$data = array_map('strip_tags', $data);
 		return $data;

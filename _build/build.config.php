@@ -3,8 +3,8 @@
 define('PKG_NAME', 'Office');
 define('PKG_NAME_LOWER', strtolower(PKG_NAME));
 
-define('PKG_VERSION', '0.8.2');
-define('PKG_RELEASE', 'beta');
+define('PKG_VERSION', '0.8.3');
+define('PKG_RELEASE', 'pl');
 
 
 /* define paths */

@@ -11,7 +11,7 @@ if ($object->xpdo) {
 			$modx->addPackage('office', $modelPath);
 
 			$manager = $modx->getManager();
-			$manager->createObjectContainer('zpUser');
+			//$manager->createObjectContainer('zpUser');
 		break;
 
 		case xPDOTransport::ACTION_UPGRADE:
