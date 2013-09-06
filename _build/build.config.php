@@ -3,7 +3,7 @@
 define('PKG_NAME', 'Office');
 define('PKG_NAME_LOWER', strtolower(PKG_NAME));
 
-define('PKG_VERSION', '0.8.3');
+define('PKG_VERSION', '0.9.0');
 define('PKG_RELEASE', 'pl');
 define('PKG_AUTO_INSTALL', true);
 
@@ -42,7 +42,3 @@ define('BUILD_PERMISSION_UPDATE', true);
 define('BUILD_CHUNK_STATIC', false);
 define('BUILD_SNIPPET_STATIC', false);
 define('BUILD_PLUGIN_STATIC', false);
-
-$BUILD_CONTROLLERS = array(
-	'main','auth','profile','minishop2'
-);

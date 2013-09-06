@@ -224,20 +224,6 @@ $attr = array(
 );
 $vehicle = $builder->createVehicle($category,$attr);
 
-/* excluding controllers */
-$saved = array();
-$controllers = scandir($sources['controllers']);
-foreach ($controllers as $controller) {
-	$file = $sources['controllers'] . $controller;
-	if (!is_file($file)) {continue;}
-	preg_match('/(.*?)\.class\.php$/', $controller, $matches);
-	$name = $matches[1];
-	if (!in_array($name, $BUILD_CONTROLLERS)) {
-		$saved[$name] = file_get_contents($file);
-		unlink($file);
-	}
-}
-
 /* now pack in resolvers */
 $vehicle->resolve('file',array(
 	'source' => $sources['source_assets'],
@@ -263,11 +249,11 @@ $builder->putVehicle($vehicle);
 
 /* now pack in the license file, readme and setup options */
 $builder->setPackageAttributes(array(
-	'changelog' => file_get_contents($sources['docs'] . 'changelog.txt')
-	,'license' => file_get_contents($sources['docs'] . 'license.txt')
-	,'readme' => file_get_contents($sources['docs'] . 'readme.txt')
+	'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
+	'license' => file_get_contents($sources['docs'] . 'license.txt'),
+	'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
 	/*
-	,'setup-options' => array(
+	'setup-options' => array(
 		'source' => $sources['build'].'setup.options.php',
 	),*/
 ));
@@ -283,12 +269,6 @@ $mtime= $mtime[1] + $mtime[0];
 $tend= $mtime;
 $totalTime= ($tend - $tstart);
 $totalTime= sprintf("%2.4f s", $totalTime);
-
-/* restoring excluded controllers */
-foreach ($saved as $name => $content) {
-	$file = $sources['controllers'] . $name .'.class.php';
-	file_put_contents($file, $content);
-}
 
 if (defined('PKG_AUTO_INSTALL') && PKG_AUTO_INSTALL) {
 	$signature = $builder->getSignature();

@@ -3,8 +3,6 @@
 $_lang['area_office_main'] = 'Main';
 $_lang['area_office_auth'] = 'Authorization';
 $_lang['area_office_profile'] = 'Profile';
-$_lang['area_office_extras'] = 'Extras';
-$_lang['area_office_zpayment'] = 'Z-Payment';
 $_lang['area_office_ms2'] = 'miniShop2';
 
 $_lang['setting_office_frontend_css'] = 'Office main styles';
