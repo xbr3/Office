@@ -3,6 +3,7 @@ Changelog for Office.
 0.9.0
 ==============
 - Removed unused files
+- Added integration with HybridAuth 0.7+
 
 0.8.3
 ==============

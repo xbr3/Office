@@ -234,7 +234,7 @@ $vehicle->resolve('file',array(
 	'target' => "return MODX_CORE_PATH . 'components/';",
 ));
 
-$resolvers = array('tables');
+$resolvers = array('setup');
 foreach ($resolvers as $resolver) {
 	if ($vehicle->resolve('php', array('source' => $sources['resolvers'] . 'resolve.'.$resolver.'.php'))) {
 		$modx->log(modX::LOG_LEVEL_INFO,'Added resolver "'.$resolver.'" to category.');
@@ -252,10 +252,9 @@ $builder->setPackageAttributes(array(
 	'changelog' => file_get_contents($sources['docs'] . 'changelog.txt'),
 	'license' => file_get_contents($sources['docs'] . 'license.txt'),
 	'readme' => file_get_contents($sources['docs'] . 'readme.txt'),
-	/*
 	'setup-options' => array(
 		'source' => $sources['build'].'setup.options.php',
-	),*/
+	),
 ));
 $modx->log(modX::LOG_LEVEL_INFO,'Added package attributes and setup options.');
 

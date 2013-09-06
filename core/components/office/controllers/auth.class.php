@@ -22,6 +22,10 @@ class officeAuthController extends officeDefaultController {
 				,'rememberme' => true
 				,'loginContext' => $this->modx->context->key
 				,'addContexts' => ''
+
+				,'HybridAuth' => true
+				,'providerTpl' => 'tpl.HybridAuth.provider'
+				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
 			), $config);
 
 			$_SESSION['Office']['Auth'] = $this->config;
@@ -55,14 +59,25 @@ class officeAuthController extends officeDefaultController {
 			$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
 		}
 
+		$pls = array();
+		if ($this->config['HybridAuth'] && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
+			if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
+				$HybridAuth = new HybridAuth($this->modx, $this->config);
+				$HybridAuth->initialize($this->modx->context->key);
+				$pls['providers'] = $HybridAuth->getProvidersLinks();
+			}
+		}
+
 		if (!$this->modx->user->isAuthenticated()) {
-			return $this->modx->getChunk($this->config['tplLogin']);
+			return $this->modx->getChunk($this->config['tplLogin'], $pls);
 		}
 		else {
 			$user = $this->modx->user->toArray();
-			$profile = $this->modx->user->getOne('Profile')->toArray();
-			$user['gravatar'] = 'http://www.gravatar.com/avatar/'.md5(strtolower($profile['email']));
-			return $this->modx->getChunk($this->config['tplLogout'], array_merge($profile, $user));
+			$profile = $this->modx->user->Profile->toArray();
+			$pls = array_merge($pls, $profile, $user);
+			$pls['gravatar'] = 'http://gravatar.com/avatar/'.md5(strtolower($profile['email']));
+
+			return $this->modx->getChunk($this->config['tplLogout'], $pls);
 		}
 	}
 
@@ -205,6 +220,12 @@ class officeAuthController extends officeDefaultController {
 
 
 	public function Logout() {
+		if ($this->config['HybridAuth'] && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
+			if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
+				$HybridAuth = new HybridAuth($this->modx, $this->config);
+				@$HybridAuth->Hybrid_Auth->logoutAllProviders();
+			}
+		}
 		$response = $this->modx->runProcessor('security/logout');
 		if ($response->isError()) {
 			$errors = implode(', ',$response->getAllErrors());
@@ -215,12 +236,12 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
-	/*
+	/**
 	 * Reloads site page on various events.
 	 *
 	 * @param string $action The action to do
-	 * @return nothing
-	 * */
+	 * @return void
+	 */
 	function sendRedirect($action = '') {
 		$error_pages = array($this->modx->getOption('error_page'), $this->modx->getOption('unauthorized_page'));
 

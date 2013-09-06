@@ -7,6 +7,8 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 	public $permission = '';
 	public $beforeSaveEvent = 'OnBeforeUserFormSave';
 	public $afterSaveEvent = 'OnUserFormSave';
+	protected $new_email;
+	protected $current_email;
 
 
 	/**
@@ -28,13 +30,16 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 		if (!empty($fields) && is_array($fields)) {
 			foreach ($fields as $field) {
 				$tmp = trim($this->getProperty($field,null));
-				if ($field == 'email' && !preg_match('/.+@.+..+/i', $tmp)) {
+				if ($field == 'email' && !preg_match('/^[^@а-яА-Я]+@[^@а-яА-Я]+(?<!\.)\.[^\.а-яА-Я]{2,}$/m', $tmp)) {
 					$this->addFieldError('email', $this->modx->lexicon('user_err_not_specified_email'));
 				}
-				else if ($field == 'email' && $this->modx->getCount('modUser', array('username' => $tmp, 'id:!=' => $this->object->id))) {
+				elseif ($field == 'email' && $this->modx->getCount('modUser', array('username' => $tmp, 'id:!=' => $this->object->id))) {
 					$this->addFieldError('email', $this->modx->lexicon('user_err_already_exists_email'));
 				}
-				else if (empty($tmp)) {
+				elseif ($field == 'email' && $this->modx->getCount('modUserProfile', array('email' => $tmp, 'internalKey:!=' => $this->object->id))) {
+					$this->addFieldError('email', $this->modx->lexicon('user_err_already_exists_email'));
+				}
+				elseif (empty($tmp)) {
 					$this->addFieldError($field, $this->modx->lexicon('field_required'));
 				}
 				else {
@@ -42,14 +47,21 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 				}
 			}
 		}
+		$this->setProperty('username', $this->object->get('username'));
+		$this->current_email = $this->object->Profile->get('email');
+		$this->new_email = $this->getProperty('email');
 
 		return parent::beforeSet();
 	}
 
-	public function beforeSave() {
-		$this->setProperty('email', $this->getProperty('username'));
 
-		return parent::beforeSave();
+	public function afterSave() {
+		if ($this->new_email != $this->current_email) {
+			$this->object->Profile->set('email', $this->current_email);
+			$this->object->Profile->save();
+		}
+
+		return parent::afterSave();
 	}
 
 }

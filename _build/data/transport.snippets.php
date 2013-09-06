@@ -12,11 +12,19 @@ $tmp = array(
 	'Office' => array(
 		'file' => 'office'
 		,'description' => ''
-	)
+	),
+	'officeProfile' => array(
+		'file' => 'office.profile'
+		,'description' => ''
+	),
+	'officeAuth' => array(
+		'file' => 'office.auth'
+		,'description' => ''
+	),
 );
 
 foreach ($tmp as $k => $v) {
-	/* @avr modSnippet $snippet */
+	/* @var modSnippet $snippet */
 	$snippet = $modx->newObject('modSnippet');
 	$snippet->fromArray(array(
 		'id' => 0

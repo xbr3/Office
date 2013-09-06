@@ -14,8 +14,11 @@ class officeProfileController extends officeDefaultController {
 
 				,'profileFields' => 'email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website'
 				,'requiredFields' => 'email,fullname'
-
 				,'pageId' => 0
+
+				,'HybridAuth' => true
+				,'providerTpl' => 'tpl.HybridAuth.provider'
+				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
 			), $config);
 
 			$page_id = $this->modx->getOption('office_profile_page_id');
@@ -32,38 +35,47 @@ class officeProfileController extends officeDefaultController {
 
 
 	public function getLanguageTopics() {
-		return array('office:profile');
+		return array('office:profile','core:user');
 	}
 
 
 	public function defaultAction() {
-		if (!$this->modx->user->isAuthenticated()) {
-			//$this->modx->sendUnauthorizedPage();
-			return '';
-		}
-		else {
-			$config = $this->office->makePlaceholders($this->office->config);
-			if ($css = trim($this->modx->getOption('office_profile_frontend_css', null, '[[+cssUrl]]profile/default.css'))) {
-				$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
-			}
-			if ($js = trim($this->modx->getOption('office_profile_frontend_js', null, '[[+jsUrl]]profile/default.js'))) {
-				$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
-			}
+		if (!$this->modx->user->isAuthenticated()) {return '';}
 
-			$user = $this->modx->user->toArray();
-			$profile = $this->modx->user->getOne('Profile')->toArray();
-			$user['gravatar'] = 'http://www.gravatar.com/avatar/'.md5(strtolower($profile['email']));
-
-			return $this->modx->getChunk($this->config['tplProfile'], array_merge($profile, $user));
+		$config = $this->office->makePlaceholders($this->office->config);
+		if ($css = trim($this->modx->getOption('office_profile_frontend_css', null, '[[+cssUrl]]profile/default.css'))) {
+			$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
 		}
+		if ($js = trim($this->modx->getOption('office_profile_frontend_js', null, '[[+jsUrl]]profile/default.js'))) {
+			$this->modx->regClientScript(str_replace($config['pl'], $config['vl'], $js));
+		}
+
+		$pls = array();
+		if ($this->config['HybridAuth'] && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
+			if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
+				$HybridAuth = new HybridAuth($this->modx, $this->config);
+				$HybridAuth->initialize($this->modx->context->key);
+				$pls['providers'] = $HybridAuth->getProvidersLinks();
+			}
+		}
+
+
+		$user = $this->modx->user->toArray();
+		$profile = $this->modx->user->Profile->toArray();
+		$pls = array_merge($pls, $profile, $user);
+		$pls['gravatar'] = 'http://gravatar.com/avatar/'.md5(strtolower($profile['email']));
+
+		return $this->modx->getChunk($this->config['tplProfile'], $pls);
 	}
 
 
-	/*
-	 * Updates user profile
+	/**
+	 * Updates profile of user
 	 *
-	 * $param array $fields Array with new values
-	 * */
+	 * @param array $data
+	 *
+	 * @return array|string
+	 */
 	public function Update($data = array()) {
 		if (!$this->modx->user->isAuthenticated()) {
 			return $this->error($this->modx->lexicon('office_err_auth'));
@@ -91,9 +103,8 @@ class officeProfileController extends officeDefaultController {
 		}
 
 		$fields['requiredFields'] = array_map('trim', explode(',', $this->config['requiredFields']));
-		$current_email = $this->modx->user->get('username');
-		$new_email =  @$fields['email'];
-		$fields['username'] = $current_email;
+		$current_email = $this->modx->user->Profile->get('email');
+		$new_email = !empty($fields['email']) ? trim($fields['email']) : '';
 		$changeEmail = !($current_email == $new_email);
 
 		/* @var modProcessorResponse $response */
@@ -108,35 +119,42 @@ class officeProfileController extends officeDefaultController {
 			return $this->error($this->modx->lexicon('office_profile_err_update'), $errors);
 		}
 
+		// Load updated user object into system
+		$this->modx->user = $this->modx->getObject($this->modx->user->get('class_key'), $this->modx->user->id);
+
 		if ($changeEmail) {
-			$page_id = !empty($data['pageId']) ? $data['pageId'] : $this->modx->getOption('office_profile_page_id');
+			$page_id = !empty($data['pageId'])
+				? $data['pageId']
+				: $this->modx->getOption('office_profile_page_id');
+
 			$change = $this->changeEmail($new_email, $page_id);
-			return ($change !== true)
-				? $this->success($this->modx->lexicon('office_profile_msg_save_noemail', array('errors', implode(',', $change))))
-				: $this->success($this->modx->lexicon('office_profile_msg_save_email'));
+			$message = ($change === true)
+				? $this->modx->lexicon('office_profile_msg_save_email')
+				: $this->modx->lexicon('office_profile_msg_save_noemail', array('errors' => $change));
 		}
 		else {
-			$saved = array();
-			$tmp = $this->modx->user->getOne('Profile')->toArray();
-			$tmp = array_merge($response->response['object'], $tmp);
-			foreach ($fields as $k => $v) {
-				if (isset($tmp[$k]) && isset($data[$k])) {
-					$saved[$k] = $tmp[$k];
-				}
-			}
-			//if ($_SERVER['REMOTE_ADDR'] == '194.190.81.82') {}
-			return $this->success($this->modx->lexicon('office_profile_msg_save'), $saved);
+			$message = $this->modx->lexicon('office_profile_msg_save');
 		}
+
+		$saved = array();
+		$tmp = $this->modx->user->Profile->toArray();
+		$tmp = array_merge($response->response['object'], $tmp);
+		foreach ($fields as $k => $v) {
+			if (isset($tmp[$k]) && isset($data[$k])) {
+				$saved[$k] = $tmp[$k];
+			}
+		}
+		return $this->success($message, $saved);
 	}
 
 
-	/*
+	/**
 	 * Sanitizes a string
 	 *
 	 * @param string $string The string to sanitize
 	 * @param integer $length The length of sanitized string
 	 * @return string The sanitized string.
-	 * */
+	 */
 	public function Sanitize($string = '', $length = 0) {
 		$expr = '/[^-_a-zа-яё0-9@\s\.\,\:\/\\\]+/iu';
 		$sanitized = trim(preg_replace($expr, '', $string));
@@ -147,6 +165,14 @@ class officeProfileController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Method for change email of user
+	 *
+	 * @param $email
+	 * @param $id
+	 *
+	 * @return bool
+	 */
 	public function changeEmail($email, $id) {
 		$activationHash = md5(uniqid(md5($this->modx->user->get('email') . '/' . $this->modx->user->get('id')), true));
 
@@ -169,26 +195,37 @@ class officeProfileController extends officeDefaultController {
 			, 'full'
 		);
 
-		$send = $this->modx->user->sendEmail(
-			$this->modx->getChunk(
-				$this->config['tplActivate']
-				,array_merge(
-					$this->modx->user->getOne('Profile')->toArray()
-					,$this->modx->user->toArray()
-					,array('link' => $link)
-				)
-			)
-			,array(
-				'subject' => $this->modx->lexicon('office_profile_email_subject')
+		$chunk = $this->modx->getChunk($this->config['tplActivate'],
+			array_merge(
+				$this->modx->user->getOne('Profile')->toArray()
+				,$this->modx->user->toArray()
+				,array('link' => $link)
 			)
 		);
 
-		return ($send !== true)
+		$this->modx->getService('mail', 'mail.modPHPMailer');
+		$this->modx->mail->set(modMail::MAIL_BODY, $chunk);
+		$this->modx->mail->set(modMail::MAIL_FROM, $this->modx->getOption('emailsender'));
+		$this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->modx->getOption('site_name'));
+		$this->modx->mail->set(modMail::MAIL_SENDER, $this->modx->getOption('emailsender'));
+		$this->modx->mail->set(modMail::MAIL_SUBJECT, $this->modx->lexicon('office_profile_email_subject'));
+		$this->modx->mail->address('to', $email);
+		$this->modx->mail->address('reply-to', $this->modx->getOption('emailsender'));
+		$this->modx->mail->setHTML(true);
+		$response = !$this->modx->mail->send()
 			? $this->modx->mail->mailer->errorInfo
 			: true;
+		$this->modx->mail->reset();
+
+		return $response;
 	}
 
 
+	/**
+	 * Method for confirmation of user email
+	 *
+	 * @param $data
+	 */
 	public function confirmEmail($data) {
 		$this->modx->getService('registry', 'registry.modRegistry');
 		$this->modx->registry->getRegister('user', 'registry.modDbRegister');

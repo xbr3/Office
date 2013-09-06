@@ -11,6 +11,7 @@ $_lang['office_profile_email'] = 'Email';
 $_lang['office_profile_email_desc'] = 'Новый email нужно будет подтвердить.';
 $_lang['office_profile_save'] = 'Сохранить';
 $_lang['office_profile_reset'] = 'Сброс';
+$_lang['office_profile_logout'] = 'Выйти &rarr;';
 
 $_lang['office_profile_email_subject'] = 'Проверка email';
 

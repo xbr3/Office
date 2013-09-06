@@ -41,7 +41,7 @@ $tmp = array(
 	),
 	'profile_required_fields' => array(
 		'xtype' => 'textfield',
-		'value' => 'fullname',
+		'value' => 'email,fullname',
 		'area' => 'office_profile',
 	),
 	'profile_frontend_css' => array(

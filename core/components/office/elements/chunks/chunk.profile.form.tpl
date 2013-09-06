@@ -29,9 +29,16 @@
 		</div>
 	</div>
 
+	<div class="control-group">
+		<label class="control-label">[[%ha.providers_available]]</label>
+		<div class="controls">
+			[[+providers]]
+		</div>
+	</div>
+
 	<div class="form-actions">
 		<button type="submit" class="btn btn-primary">[[%office_profile_save]]</button>
 		&nbsp;&nbsp;&nbsp;&nbsp;
-		<button type="reset" class="btn">[[%office_profile_reset]]</button>
+		<a class="btn btn-danger" href="[[~[[*id]]]]?action=auth/logout">[[%office_profile_logout]]</a>
 	</div>
 </form>
