@@ -1,6 +1,6 @@
 Changelog for Office.
 
-0.9.0-pl1
+0.9.0-pl2
 ==============
 - Fixed email verification
 - Removed unused files
