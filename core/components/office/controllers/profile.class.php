@@ -134,8 +134,9 @@ class officeProfileController extends officeDefaultController {
 		}
 
 		$saved = array();
-		$tmp = $this->modx->user->Profile->toArray();
-		$tmp = array_merge($response->response['object'], $tmp);
+		$user = $this->modx->getObject('modUser', $this->modx->user->id);
+		$profile = $this->modx->getObject('modUserProfile', array('internalKey' => $this->modx->user->id));
+		$tmp = array_merge($profile->toArray(), $user->toArray());
 		$tmp['email'] = $new_email;
 		foreach ($fields as $k => $v) {
 			if (isset($tmp[$k]) && isset($data[$k])) {
