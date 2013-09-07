@@ -119,9 +119,6 @@ class officeProfileController extends officeDefaultController {
 			return $this->error($this->modx->lexicon('office_profile_err_update'), $errors);
 		}
 
-		// Load updated user object into system
-		$this->modx->user = $this->modx->getObject($this->modx->user->get('class_key'), $this->modx->user->id);
-
 		if ($changeEmail) {
 			$page_id = !empty($data['pageId'])
 				? $data['pageId']
@@ -139,6 +136,7 @@ class officeProfileController extends officeDefaultController {
 		$saved = array();
 		$tmp = $this->modx->user->Profile->toArray();
 		$tmp = array_merge($response->response['object'], $tmp);
+		$tmp['email'] = $new_email;
 		foreach ($fields as $k => $v) {
 			if (isset($tmp[$k]) && isset($data[$k])) {
 				$saved[$k] = $tmp[$k];

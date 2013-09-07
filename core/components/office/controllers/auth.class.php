@@ -83,7 +83,7 @@ class officeAuthController extends officeDefaultController {
 
 
 	public function sendLink($data = array()) {
-		$email = trim(@$data['email']);
+		$email = strtolower(trim(@$data['email']));
 		if ($this->modx->user->isAuthenticated()) {
 			return $this->success(
 				$this->modx->lexicon('office_auth_err_already_logged')
@@ -93,11 +93,11 @@ class officeAuthController extends officeDefaultController {
 		if (empty($email)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email_ns'));
 		}
-		else if (!preg_match('/.+@.+..+/i', $email)) {
+		else if (!preg_match('/^[^@а-яА-Я]+@[^@а-яА-Я]+(?<!\.)\.[^\.а-яА-Я]{2,}$/m', $email)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email'));
 		}
 
-		if ($this->modx->getCount('modUser', array('username' => $email))) {
+		if ($this->modx->getCount('modUser', array('username' => $email)) || $this->modx->getCount('modUserProfile', array('email' => $email))) {
 			return $this->sendMail($email);
 		}
 		else {
@@ -211,11 +211,11 @@ class officeAuthController extends officeDefaultController {
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] unable to login user '.$data['email'].'. Message: '.$errors);
 					return $this->modx->lexicon('office_auth_err_login', array('errors' => $errors));
 				}
-				return $this->sendRedirect('login');
+				$this->sendRedirect('login');
 			}
 		}
 
-		return $this->sendRedirect();
+		$this->sendRedirect();
 	}
 
 
@@ -232,7 +232,7 @@ class officeAuthController extends officeDefaultController {
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
 		}
 
-		return $this->sendRedirect('logout');
+		$this->sendRedirect('logout');
 	}
 
 
@@ -277,7 +277,6 @@ class officeAuthController extends officeDefaultController {
 		}
 
 		$this->modx->sendRedirect($url);
-		return '';
 	}
 
 }

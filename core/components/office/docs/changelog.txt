@@ -1,7 +1,8 @@
 Changelog for Office.
 
-0.9.0
+0.9.0-pl1
 ==============
+- Fixed email verification
 - Removed unused files
 - Added integration with HybridAuth 0.7+
 
