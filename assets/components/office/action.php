@@ -16,15 +16,21 @@ $modx->setLogLevel(modX::LOG_LEVEL_ERROR);
 $modx->setLogTarget('FILE');
 $modx->error->message = null;
 
-$ctx = !empty($_REQUEST['ctx']) ? $_REQUEST['ctx'] : 'web';
-if ($ctx != 'web') {$modx->switchContext($ctx);}
-
-//ini_set('display_errors',1);
-//ini_set('error_reporting',-1);
+if (!empty($_REQUEST['pageId']) && $resource = $modx->getObject('modResource', $_REQUEST['pageId'])) {
+	$ctx = $resource->get('context_key');
+}
+else {
+	$ctx = !empty($_REQUEST['ctx']) ? $_REQUEST['ctx'] : 'web';
+}
+if ($ctx != 'web') {
+	$modx->switchContext($ctx);
+	$modx->user = null;
+	$modx->getUser($ctx);
+}
 
 /* @var Office $Office */
 define('MODX_ACTION_MODE', true);
-$Office = $modx->getService('office','Office',$modx->getOption('office.core_path',null,$modx->getOption('core_path').'components/office/').'model/office/',array());
+$Office = $modx->getService('office','Office', MODX_CORE_PATH . 'components/office/model/office/', array());
 if ($modx->error->hasError() || !($Office instanceof Office)) {die('Error');}
 $Office->initialize($ctx);
 

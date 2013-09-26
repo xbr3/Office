@@ -29,7 +29,7 @@ class officeMS2Controller extends officeDefaultController {
 
 
 	public function defaultAction() {
-		if (!$this->modx->user->isAuthenticated()) {
+		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {
 			//$this->modx->sendUnauthorizedPage();
 			return '';
 		}

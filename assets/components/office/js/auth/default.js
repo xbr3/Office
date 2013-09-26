@@ -14,7 +14,12 @@ Office.Auth = {
 
 		$(document).on('submit', selector + ' form', function(e) {
 			var email = $(this).find('input[name="email"]').val();
-			$.post(OfficeConfig.actionUrl, {action: 'auth/sendlink', email: email}, function(response) {
+			var params = {
+				action: 'auth/sendlink'
+				,email: email
+				,pageId: OfficeConfig.pageId
+			};
+			$.post(OfficeConfig.actionUrl, params, function(response) {
 				Office.Message.close();
 				var data = $.parseJSON(response);
 				if (data.success) {

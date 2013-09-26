@@ -1,5 +1,14 @@
 Changelog for Office.
 
+0.9.1-rc
+==============
+- [Auth] Improved work in multiple contexts.
+- [Auth] Fixed generated links for contexts in subdirectory.
+- [Auth] Moved "login" and "Logout" logic to system plugin.
+- [Auth] Improved saving "office_auth_page_id" setting.
+- [Profile] mproved saving "office_profile_page_id" setting.
+- [Main] Fixed issues with multiple controllers calls on one page.
+
 0.9.0-pl2
 ==============
 - Fixed email verification

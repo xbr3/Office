@@ -1,8 +1,7 @@
 <?php
 /** @var array $scriptProperties */
-if (!$modx->loadClass('office', MODX_CORE_PATH . 'components/office/model/office/', false, true)) {return;}
 /** @var Office $Office */
-$Office = new Office($modx, $scriptProperties);
+$Office = $modx->getService('office', 'Office', MODX_CORE_PATH . 'components/office/model/office/', $scriptProperties);
 
 $output = null;
 // We can change action to received via $_GET only if snippet was called with the same controller

@@ -3,8 +3,8 @@
 class officeAuthController extends officeDefaultController {
 
 	public function setDefault($config = array()) {
-		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Auth'])) {
-			$this->config = $_SESSION['Office']['Auth'];
+		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Auth'][$this->modx->context->key])) {
+			$this->config = $_SESSION['Office']['Auth'][$this->modx->context->key];
 			$this->config['json_response'] = true;
 		}
 		else {
@@ -20,28 +20,39 @@ class officeAuthController extends officeDefaultController {
 				,'loginResourceId' => 0
 				,'logoutResourceId' => 0
 				,'rememberme' => true
-				,'loginContext' => $this->modx->context->key
+				,'loginContext' => ''
 				,'addContexts' => ''
 
 				,'HybridAuth' => true
 				,'providerTpl' => 'tpl.HybridAuth.provider'
 				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
 			), $config);
-
-			$_SESSION['Office']['Auth'] = $this->config;
 		}
 
 		$this->config['page_id'] = $this->modx->getOption('office_auth_page_id');
-		if (empty($this->config['page_id'])) {
+		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
+			/* @var modContextSetting $setting */
+			$key = array('key' => 'office_auth_page_id', 'context_key' => $this->modx->context->key);
+			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
+				$setting = $this->modx->newObject('modContextSetting');
+				$setting->fromArray($key, '', true, true);
+			}
+			$setting->set('value', $this->modx->resource->id);
+			$setting->save();
+
 			/* @var modSystemSetting $setting */
-			if ($setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
+			if ($this->modx->context->key == 'web' && $setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
 				$setting->set('value', $this->modx->resource->id);
 				$setting->save();
 			}
+
+			$this->config['page_id'] = $this->modx->resource->id;
 		}
 
-		if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $this->config['page_id'];}
-		if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $this->config['page_id'];}
+		if (empty($this->config['loginContext'])) {$this->config['loginContext'] = $this->modx->context->key;}
+		//if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $this->config['page_id'];}
+		//if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $this->config['page_id'];}
+		$_SESSION['Office']['Auth'][$this->modx->context->key] = $this->config;
 	}
 
 
@@ -68,7 +79,7 @@ class officeAuthController extends officeDefaultController {
 			}
 		}
 
-		if (!$this->modx->user->isAuthenticated()) {
+		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {
 			return $this->modx->getChunk($this->config['tplLogin'], $pls);
 		}
 		else {
@@ -84,7 +95,7 @@ class officeAuthController extends officeDefaultController {
 
 	public function sendLink($data = array()) {
 		$email = strtolower(trim(@$data['email']));
-		if ($this->modx->user->isAuthenticated()) {
+		if ($this->modx->user->isAuthenticated($this->modx->context->key)) {
 			return $this->success(
 				$this->modx->lexicon('office_auth_err_already_logged')
 				,array('refresh' => $this->modx->makeUrl($this->config['loginResourceId'], '', '', 'full'))
@@ -134,7 +145,14 @@ class officeAuthController extends officeDefaultController {
 		$user->save();
 
 		/* send activation email */
-		$link = $this->modx->makeUrl($this->config['loginResourceId'], '', array(
+		$id = !empty($this->config['loginResourceId'])
+			? $this->config['loginResourceId']
+			: (!empty($_REQUEST['pageId'])
+				? $_REQUEST['pageId']
+				: $this->modx->getOption('site_start')
+			);
+		$this->modx->log(1, $id);
+		$link = $this->modx->makeUrl($id, '', array(
 				'action' => 'auth/login'
 				,'email' => $email
 				,'hash' => $activationHash.':'.$newPassword
@@ -198,14 +216,15 @@ class officeAuthController extends officeDefaultController {
 				$user->set('active', 1);
 				$user->save();
 
-				$data = array(
+				$login_data = array(
 					'username' => $data['email']
 					,'password' => $password
 					,'rememberme' => $this->config['rememberme']
-					,'loginContext' => $this->config['loginContext']
-					,'addContexts' => $this->config['addContexts']
+					,'login_context' => $this->config['loginContext']
 				);
-				$response = $this->modx->runProcessor('security/login', $data);
+				if (!empty($this->config['addContexts'])) {$login_data['add_contexts'] = $this->config['addContexts'];}
+
+				$response = $this->modx->runProcessor('security/login', $login_data);
 				if ($response->isError()) {
 					$errors = implode(', ',$response->getAllErrors());
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] unable to login user '.$data['email'].'. Message: '.$errors);
@@ -215,7 +234,7 @@ class officeAuthController extends officeDefaultController {
 			}
 		}
 
-		$this->sendRedirect();
+		$this->sendRedirect('login');
 	}
 
 
@@ -226,7 +245,12 @@ class officeAuthController extends officeDefaultController {
 				@$HybridAuth->Hybrid_Auth->logoutAllProviders();
 			}
 		}
-		$response = $this->modx->runProcessor('security/logout');
+
+		$logout_data = array();
+		if (!empty($this->config['loginContext'])) {$logout_data['login_context'] = $this->config['loginContext'];}
+		if (!empty($this->config['addContexts'])) {$logout_data['add_contexts'] = $this->config['addContexts'];}
+
+		$response = $this->modx->runProcessor('security/logout', $logout_data);
 		if ($response->isError()) {
 			$errors = implode(', ',$response->getAllErrors());
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
@@ -234,6 +258,7 @@ class officeAuthController extends officeDefaultController {
 
 		$this->sendRedirect('logout');
 	}
+
 
 
 	/**
@@ -249,16 +274,18 @@ class officeAuthController extends officeDefaultController {
 			if (in_array($this->config['loginResourceId'], $error_pages)) {
 				$this->config['loginResourceId'] = $this->config['page_id'];
 			}
-			$url = $this->modx->makeUrl($this->config['loginResourceId'],'','','full');
+			$url = $this->modx->makeUrl($this->config['loginResourceId'], '', '', 'full');
 		}
 		else if ($action == 'logout' && $this->config['logoutResourceId']) {
 			if (in_array($this->config['logoutResourceId'], $error_pages)) {
 				$this->config['logoutResourceId'] = $this->config['page_id'];
 			}
-			$url = $this->modx->makeUrl($this->config['logoutResourceId'],'','','full');
+			$url = $this->modx->makeUrl($this->config['logoutResourceId'], '', '', 'full');
 		}
 		else {
-			$url = $this->config['siteUrl'] . substr($_SERVER['REQUEST_URI'], 1);
+			$request = preg_replace('#^'.$this->modx->getOption('base_url').'#', '', $_SERVER['REQUEST_URI']);
+			$url = $this->modx->getOption('site_url') . ltrim($request, '/');
+
 			$pos = strpos($url, '?');
 			if ($pos !== false) {
 				$arr = explode('&',substr($url, $pos+1));

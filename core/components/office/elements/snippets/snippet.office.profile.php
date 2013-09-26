@@ -1,10 +1,11 @@
 <?php
 /** @var array $scriptProperties */
-if (!empty($_REQUEST['action']) && strtolower($_REQUEST['action']) == 'auth/logout') {
-	$scriptProperties['action'] = 'Auth/Logout';
-}
-else {
-	$scriptProperties['action'] = 'Profile';
-}
+$scriptProperties['action'] = 'Profile';
 
-return $modx->runSnippet('Office', $scriptProperties);
+/** @var modSnippet $snippet */
+if ($snippet = $modx->getObject('modSnippet', array('name' => 'Office'))) {
+	$snippet->_cacheable = false;
+	$snippet->_processed = false;
+
+	return $snippet->process($scriptProperties);
+}

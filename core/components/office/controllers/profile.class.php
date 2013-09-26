@@ -3,8 +3,8 @@
 class officeProfileController extends officeDefaultController {
 
 	public function setDefault($config = array()) {
-		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Profile'])) {
-			$this->config = $_SESSION['Office']['Profile'];
+		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Profile'][$this->modx->context->key])) {
+			$this->config = $_SESSION['Office']['Profile'][$this->modx->context->key];
 			$this->config['json_response'] = true;
 		}
 		else {
@@ -14,23 +14,34 @@ class officeProfileController extends officeDefaultController {
 
 				,'profileFields' => 'email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website'
 				,'requiredFields' => 'email,fullname'
-				,'pageId' => 0
 
 				,'HybridAuth' => true
 				,'providerTpl' => 'tpl.HybridAuth.provider'
 				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
 			), $config);
-
-			$page_id = $this->modx->getOption('office_profile_page_id');
-			if (empty($page_id)) {
-				/* @var modSystemSetting $setting */
-				if ($setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
-					$setting->set('value', $this->modx->resource->id);
-					$setting->save();
-				}
-			}
-			$_SESSION['Office']['Profile'] = $this->config;
 		}
+
+		$this->config['page_id'] = $this->modx->getOption('office_profile_page_id');
+		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
+			/* @var modContextSetting $setting */
+			$key = array('key' => 'office_profile_page_id', 'context_key' => $this->modx->context->key);
+			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
+				$setting = $this->modx->newObject('modContextSetting');
+				$setting->fromArray($key, '', true, true);
+			}
+			$setting->set('value', $this->modx->resource->id);
+			$setting->save();
+
+			/* @var modSystemSetting $setting */
+			if ($this->modx->context->key == 'web' && $setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
+				$setting->set('value', $this->modx->resource->id);
+				$setting->save();
+			}
+
+			$this->config['page_id'] = $this->modx->resource->id;
+		}
+
+		$_SESSION['Office']['Profile'][$this->modx->context->key] = $this->config;
 	}
 
 
@@ -40,7 +51,7 @@ class officeProfileController extends officeDefaultController {
 
 
 	public function defaultAction() {
-		if (!$this->modx->user->isAuthenticated()) {return '';}
+		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {return '';}
 
 		$config = $this->office->makePlaceholders($this->office->config);
 		if ($css = trim($this->modx->getOption('office_profile_frontend_css', null, '[[+cssUrl]]profile/default.css'))) {
@@ -59,6 +70,17 @@ class officeProfileController extends officeDefaultController {
 			}
 		}
 
+		if ($this->modx->resource->id != $this->config['page_id']) {
+			/* @var modContextSetting $setting */
+			$key = array('key' => 'office_auth_page_id', 'context_key' => $this->modx->context->key);
+			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
+				$setting = $this->modx->newObject('modContextSetting');
+				$setting->fromArray($key, '', true, true);
+			}
+			$setting->set('value', $this->modx->resource->id);
+			$setting->save();
+			$this->config['page_id'] = $this->modx->resource->id;
+		}
 
 		$user = $this->modx->user->toArray();
 		$profile = $this->modx->user->Profile->toArray();
@@ -77,7 +99,7 @@ class officeProfileController extends officeDefaultController {
 	 * @return array|string
 	 */
 	public function Update($data = array()) {
-		if (!$this->modx->user->isAuthenticated()) {
+		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {
 			return $this->error($this->modx->lexicon('office_err_auth'));
 		}
 
