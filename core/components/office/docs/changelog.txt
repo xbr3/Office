@@ -1,5 +1,10 @@
 Changelog for Office.
 
+0.9.1-pl
+==============
+- [Profile] Username is always the user`s email.
+- [Main] Component set "alow_multiple_emails" to false on installation.
+
 0.9.1-rc
 ==============
 - [Auth] Improved work in multiple contexts.

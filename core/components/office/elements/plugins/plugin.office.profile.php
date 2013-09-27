@@ -20,6 +20,11 @@ switch ($modx->event->name) {
 					}
 				}
 			}
+
+			if ($modx->user->class_key == 'haUser' && !empty($modx->user->Profile->email) && $modx->user->username != $modx->user->Profile->email) {
+				$modx->user->set('username', $modx->user->Profile->email);
+				$modx->user->save();
+			}
 		};
 		break;
 }

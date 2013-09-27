@@ -60,6 +60,10 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 			$this->object->Profile->set('email', $this->current_email);
 			$this->object->Profile->save();
 		}
+		elseif ($this->object->username != $this->current_email) {
+			$this->object->set('username', $this->current_email);
+			$this->object->save();
+		}
 
 		return parent::afterSave();
 	}
