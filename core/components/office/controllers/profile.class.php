@@ -28,12 +28,14 @@ class officeProfileController extends officeDefaultController {
 			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
 				$setting = $this->modx->newObject('modContextSetting');
 				$setting->fromArray($key, '', true, true);
+				$setting->set('value', $this->modx->resource->id);
+				$setting->save();
 			}
-			$setting->set('value', $this->modx->resource->id);
-			$setting->save();
 
 			/* @var modSystemSetting $setting */
-			if ($this->modx->context->key == 'web' && $setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
+			if (!$setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
+				$setting = $this->modx->getObject('modSystemSetting');
+				$setting->set('key', 'office_profile_page_id');
 				$setting->set('value', $this->modx->resource->id);
 				$setting->save();
 			}

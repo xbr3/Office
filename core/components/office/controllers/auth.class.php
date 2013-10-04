@@ -36,12 +36,14 @@ class officeAuthController extends officeDefaultController {
 			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
 				$setting = $this->modx->newObject('modContextSetting');
 				$setting->fromArray($key, '', true, true);
+				$setting->set('value', $this->modx->resource->id);
+				$setting->save();
 			}
-			$setting->set('value', $this->modx->resource->id);
-			$setting->save();
 
 			/* @var modSystemSetting $setting */
-			if ($this->modx->context->key == 'web' && $setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
+			if (!$setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
+				$setting = $this->modx->newObject('modSystemSetting');
+				$setting->set('key', 'office_auth_page_id');
 				$setting->set('value', $this->modx->resource->id);
 				$setting->save();
 			}
