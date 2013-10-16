@@ -12,11 +12,15 @@ switch ($modx->event->name) {
 					$required = array_map('trim', explode(',', $modx->getOption('office_profile_required_fields', null)));
 					if (!in_array('email', $required)) {$required[] = 'email';}
 					$user = array_merge($modx->user->Profile->toArray(), $modx->user->toArray());
+					$need = array();
 					foreach ($required as $field) {
 						if (isset($user[$field]) && trim($user[$field]) == '') {
-							$modx->sendRedirect($modx->makeUrl($page_id,'','','full'));
-							exit;
+							$need[] = $field;
 						}
+					}
+					if (!empty($need)) {
+						$modx->sendRedirect($modx->makeUrl($page_id,'',array('off_req' => implode('-',$need)),'full'));
+						die;
 					}
 				}
 			}

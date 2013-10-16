@@ -15,7 +15,7 @@
 		<label class="control-label">[[%office_profile_fullname]]<sup class="red">*</sup></label>
 		<div class="controls">
 			<input type="text" name="fullname" value="[[+fullname]]" placeholder="[[%office_profile_fullname]]" />
-			<span class="help-inline message"></span>
+			<span class="help-inline message">[[+error_fullname]]</span>
 			<br/><small>[[%office_profile_fullname_desc]]</small>
 		</div>
 	</div>
@@ -24,7 +24,7 @@
 		<label class="control-label">[[%office_profile_email]]<sup class="red">*</sup></label>
 		<div class="controls">
 			<input type="text" name="email" value="[[+email]]" placeholder="[[%office_profile_email]]" />
-			<span class="help-inline message"></span>
+			<span class="help-inline message">[[+error_email]]</span>
 			<br/><small>[[%office_profile_email_desc]]</small>
 		</div>
 	</div>

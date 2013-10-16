@@ -19,3 +19,6 @@ $_lang['office_profile_err_update'] = 'Ошибка при обновлении 
 $_lang['office_profile_msg_save'] = 'Изменения были успешно сохранены';
 $_lang['office_profile_msg_save_email'] = 'Изменения были успешно сохранены. Ваш email не изменится, пока вы его не подтвердите.';
 $_lang['office_profile_msg_save_noemail'] = 'Изменения были успешно сохранены, но мы не смогли отправить ссылку на новый email: [[+errors]].';
+
+$_lang['office_profile_err_field_fullname'] = 'Вы должны указать ваше полное имя.';
+$_lang['office_profile_err_field_email'] = 'Вы должны указать и подтвердить ваш email.';

@@ -87,6 +87,12 @@ class officeProfileController extends officeDefaultController {
 		$user = $this->modx->user->toArray();
 		$profile = $this->modx->user->Profile->toArray();
 		$pls = array_merge($pls, $profile, $user);
+		if (!empty($_GET['off_req'])) {
+			$required = explode('-', $_GET['off_req']);
+			foreach ($required as $v) {
+				$pls['error_'.$v] = $this->modx->lexicon('office_profile_err_field_'.$v);
+			}
+		}
 		$pls['gravatar'] = 'http://gravatar.com/avatar/'.md5(strtolower($profile['email']));
 
 		return $this->modx->getChunk($this->config['tplProfile'], $pls);

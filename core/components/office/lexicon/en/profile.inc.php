@@ -20,3 +20,6 @@ $_lang['office_profile_err_update'] = 'Error during update profile';
 $_lang['office_profile_msg_save'] = 'Changes was successfully saved';
 $_lang['office_profile_msg_save_email'] = 'Changes was successfully saved. Your email address will not change until you confirm it.';
 $_lang['office_profile_msg_save_noemail'] = 'Changes was successfully saved, but we could not send activation link to new email: [[+errors]].';
+
+$_lang['office_profile_err_field_fullname'] = 'You must specify your fullname.';
+$_lang['office_profile_err_field_email'] = 'You must specify and confirm your email.';
