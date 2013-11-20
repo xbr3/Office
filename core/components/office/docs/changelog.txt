@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.9.4-pl
+==============
+- Optimized creating of system settings fo "page_id".
+
 0.9.3-pl
 ==============
 - [Profile] Added displaying error messages about required fields when user redirected to profile.

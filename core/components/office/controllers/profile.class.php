@@ -18,29 +18,20 @@ class officeProfileController extends officeDefaultController {
 				,'HybridAuth' => true
 				,'providerTpl' => 'tpl.HybridAuth.provider'
 				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
+
+				,'page_id' => $this->modx->getOption('office_profile_page_id')
 			), $config);
 		}
 
-		$this->config['page_id'] = $this->modx->getOption('office_profile_page_id');
-		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
-			/* @var modContextSetting $setting */
-			$key = array('key' => 'office_profile_page_id', 'context_key' => $this->modx->context->key);
-			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
-				$setting = $this->modx->newObject('modContextSetting');
-				$setting->fromArray($key, '', true, true);
-				$setting->set('value', $this->modx->resource->id);
-				$setting->save();
-			}
-
-			/* @var modSystemSetting $setting */
-			if (!$setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
-				$setting = $this->modx->getObject('modSystemSetting');
-				$setting->set('key', 'office_profile_page_id');
-				$setting->set('value', $this->modx->resource->id);
-				$setting->save();
-			}
-
-			$this->config['page_id'] = $this->modx->resource->id;
+		// Save main page_id if not exists. It will be used for another contexts that has no snippet call
+		/* @var modSystemSetting $setting */
+		if (!$setting = $this->modx->getObject('modSystemSetting', 'office_profile_page_id')) {
+			$setting = $this->modx->newObject('modSystemSetting');
+			$setting->set('key', 'office_profile_page_id');
+			$setting->set('value', $this->modx->resource->id);
+			$setting->set('namespace', 'office');
+			$setting->set('area', 'office_profile');
+			$setting->save();
 		}
 
 		$_SESSION['Office']['Profile'][$this->modx->context->key] = $this->config;
@@ -53,6 +44,21 @@ class officeProfileController extends officeDefaultController {
 
 
 	public function defaultAction() {
+		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
+			// Save page_id for current context
+			/* @var modContextSetting $setting */
+			$key = array('key' => 'office_profile_page_id', 'context_key' => $this->modx->context->key);
+			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
+				$setting = $this->modx->newObject('modContextSetting');
+			}
+			// It will be updated on every snippet call
+			$setting->fromArray($key, '', true, true);
+			$setting->set('value', $this->modx->resource->id);
+			$setting->save();
+
+			$this->config['page_id'] = $this->modx->resource->id;
+		}
+
 		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {return '';}
 
 		$config = $this->office->makePlaceholders($this->office->config);
@@ -74,7 +80,7 @@ class officeProfileController extends officeDefaultController {
 
 		if ($this->modx->resource->id != $this->config['page_id']) {
 			/* @var modContextSetting $setting */
-			$key = array('key' => 'office_auth_page_id', 'context_key' => $this->modx->context->key);
+			$key = array('key' => 'office_profile_page_id', 'context_key' => $this->modx->context->key);
 			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
 				$setting = $this->modx->newObject('modContextSetting');
 				$setting->fromArray($key, '', true, true);

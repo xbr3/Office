@@ -15,6 +15,7 @@ class officeAuthController extends officeDefaultController {
 
 				,'siteUrl' => $this->modx->getOption('site_url')
 				,'linkTTL' => 600
+				,'page_id' => $this->modx->getOption('office_auth_page_id')
 
 				,'groups' => ''
 				,'loginResourceId' => 0
@@ -29,31 +30,18 @@ class officeAuthController extends officeDefaultController {
 			), $config);
 		}
 
-		$this->config['page_id'] = $this->modx->getOption('office_auth_page_id');
-		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
-			/* @var modContextSetting $setting */
-			$key = array('key' => 'office_auth_page_id', 'context_key' => $this->modx->context->key);
-			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
-				$setting = $this->modx->newObject('modContextSetting');
-				$setting->fromArray($key, '', true, true);
-				$setting->set('value', $this->modx->resource->id);
-				$setting->save();
-			}
-
-			/* @var modSystemSetting $setting */
-			if (!$setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
-				$setting = $this->modx->newObject('modSystemSetting');
-				$setting->set('key', 'office_auth_page_id');
-				$setting->set('value', $this->modx->resource->id);
-				$setting->save();
-			}
-
-			$this->config['page_id'] = $this->modx->resource->id;
+		// Save main page_id if not exists. It will be used for another contexts that has no snippet call
+		/* @var modSystemSetting $setting */
+		if (!$setting = $this->modx->getObject('modSystemSetting', 'office_auth_page_id')) {
+			$setting = $this->modx->newObject('modSystemSetting');
+			$setting->set('key', 'office_auth_page_id');
+			$setting->set('value', $this->modx->resource->id);
+			$setting->set('namespace', 'office');
+			$setting->set('area', 'office_auth');
+			$setting->save();
 		}
 
 		if (empty($this->config['loginContext'])) {$this->config['loginContext'] = $this->modx->context->key;}
-		//if (empty($this->config['loginResourceId'])) {$this->config['loginResourceId'] = $this->config['page_id'];}
-		//if (empty($this->config['logoutResourceId'])) {$this->config['logoutResourceId'] = $this->config['page_id'];}
 		$_SESSION['Office']['Auth'][$this->modx->context->key] = $this->config;
 	}
 
@@ -64,6 +52,21 @@ class officeAuthController extends officeDefaultController {
 
 
 	public function defaultAction() {
+		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
+			// Save page_id for current context
+			/* @var modContextSetting $setting */
+			$key = array('key' => 'office_auth_page_id', 'context_key' => $this->modx->context->key);
+			if (!$setting = $this->modx->getObject('modContextSetting', $key)) {
+				$setting = $this->modx->newObject('modContextSetting');
+			}
+			// It will be updated on every snippet call
+			$setting->fromArray($key, '', true, true);
+			$setting->set('value', $this->modx->resource->id);
+			$setting->save();
+
+			$this->config['page_id'] = $this->modx->resource->id;
+		}
+
 		$config = $this->office->makePlaceholders($this->office->config);
 		if ($css = trim($this->modx->getOption('office_auth_frontend_css'))) {
 			$this->modx->regClientCSS(str_replace($config['pl'], $config['vl'], $css));
