@@ -29,7 +29,16 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 		$fields = $this->getProperty('requiredFields', '');
 		if (!empty($fields) && is_array($fields)) {
 			foreach ($fields as $field) {
-				$tmp = trim($this->getProperty($field,null));
+				if (preg_match('/(.*?)\[(.*?)\]/', $field, $matches)) {
+					$tmp = $this->getProperty($matches[1],null);
+					$tmp = is_array($tmp) && isset($tmp[$matches[2]])
+						? $tmp[$matches[2]]
+						: null;
+				}
+				else {
+					$tmp = $this->getProperty($field,null);
+				}
+
 				if ($field == 'email' && !preg_match('/^[^@а-яА-Я]+@[^@а-яА-Я]+(?<!\.)\.[^\.а-яА-Я]{2,}$/m', $tmp)) {
 					$this->addFieldError('email', $this->modx->lexicon('user_err_not_specified_email'));
 				}
@@ -41,9 +50,6 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 				}
 				elseif (empty($tmp)) {
 					$this->addFieldError($field, $this->modx->lexicon('field_required'));
-				}
-				else {
-					$this->setProperty($field, $tmp);
 				}
 			}
 		}

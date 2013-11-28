@@ -136,6 +136,11 @@ class officeProfileController extends officeDefaultController {
 					$fields[$key] = $this->Sanitize($data[$key], $length);
 				}
 			}
+			elseif (preg_match('/(.*?)\[(.*?)\]/', $key, $matches)) {
+				if (isset($data[$matches[1]][$matches[2]])) {
+					$fields[$matches[1]][$matches[2]] = $this->Sanitize($data[$matches[1]][$matches[2]], $length);
+				}
+			}
 		}
 
 		$fields['requiredFields'] = array_map('trim', explode(',', $this->config['requiredFields']));
