@@ -1,5 +1,9 @@
 Changelog for Office.
 
+0.9.5-pl
+==============
+- [Profile] Ability to edit extended fields.
+
 0.9.4-pl
 ==============
 - Optimized creating of system settings fo "page_id".
