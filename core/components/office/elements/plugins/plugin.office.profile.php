@@ -17,6 +17,11 @@ switch ($modx->event->name) {
 						if (isset($user[$field]) && trim($user[$field]) == '') {
 							$need[] = $field;
 						}
+						elseif (preg_match('/(.*?)\[(.*?)\]/', $field, $matches)) {
+							if (empty($user[$matches[1]][$matches[2]])) {
+								$need[$matches[1].'.'.$matches[2]] = $field;
+							}
+						}
 					}
 					if (!empty($need)) {
 						$modx->sendRedirect($modx->makeUrl($page_id,'',array('off_req' => implode('-',$need)),'full'));
