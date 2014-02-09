@@ -1,8 +1,9 @@
 Changelog for Office.
 
-0.9.5-pl1
+0.9.5-pl2
 ==============
 - [Profile] Ability to edit extended fields.
+- [miniShop2] Fixed popup windows in Internet Explorer.
 
 0.9.4-pl
 ==============

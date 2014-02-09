@@ -181,7 +181,7 @@ Ext.extend(OfficeMS2.grid.Orders,MODx.grid.Grid,{
 					});
 					w.fp.getForm().reset();
 					w.fp.getForm().setValues(r.object);
-					w.show(e.target);
+					w.show(Ext.isIE ? null : e.target);
 				},scope:this}
 				,failure: function() {
 					mask.hide();
