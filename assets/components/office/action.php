@@ -3,9 +3,6 @@
 if (empty($_REQUEST['action'])) {
 	die('Access denied');
 }
-else {
-	$action = $_REQUEST['action'];
-}
 
 define('MODX_API_MODE', true);
 require_once dirname(dirname(dirname(dirname(__FILE__)))).'/index.php';
@@ -34,6 +31,7 @@ $Office = $modx->getService('office','Office', MODX_CORE_PATH . 'components/offi
 if ($modx->error->hasError() || !($Office instanceof Office)) {die('Error');}
 $Office->initialize($ctx);
 
+$action = $_REQUEST['action'];
 unset($_REQUEST['action']);
 if (!$response = $Office->loadAction($action, $_REQUEST)) {
 	$response = $modx->toJSON(array(
@@ -42,4 +40,5 @@ if (!$response = $Office->loadAction($action, $_REQUEST)) {
 	));
 }
 
-exit($response);
+@session_write_close();
+echo $response;
