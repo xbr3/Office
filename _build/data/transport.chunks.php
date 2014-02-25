@@ -30,6 +30,8 @@ $tmp = array(
 
 );
 
+$BUILD_CHUNKS = array();
+
 foreach ($tmp as $k => $v) {
 	/* @var modChunk $chunk */
 	$chunk = $modx->newObject('modChunk');
@@ -43,6 +45,8 @@ foreach ($tmp as $k => $v) {
 		,'static_file' => 'core/components/'.PKG_NAME_LOWER.'/elements/chunks/chunk.'.$v['file'].'.tpl'
 	),'',true,true);
 	$chunks[] = $chunk;
+
+	$BUILD_CHUNKS[$k] = file_get_contents($sources['source_core'].'/elements/chunks/chunk.'.$v['file'].'.tpl');
 }
 
 unset($tmp);

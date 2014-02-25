@@ -7,6 +7,7 @@ Changelog for Office.
 - [Profile] Ability to change username.
 - [Profile] Ability to upload user avatar.
 - Updated chunks for Bootstrap 3.
+- Ability to overwrite chunks on update.
 
 0.9.5-pl2
 ==============
