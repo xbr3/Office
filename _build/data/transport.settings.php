@@ -54,6 +54,11 @@ $tmp = array(
 		'value' => '[[+jsUrl]]profile/default.js',
 		'area' => 'office_profile',
 	),
+	'profile_force_email_as_username' => array(
+		'xtype' => 'combo-boolean',
+		'value' => false,
+		'area' => 'office_profile',
+	),
 
 
 	'ms2_frontend_css' => array(

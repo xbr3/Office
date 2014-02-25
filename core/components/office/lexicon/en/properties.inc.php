@@ -23,3 +23,6 @@ $_lang['office_prop_linkTTL'] = 'Time to live of profile activation link.';
 
 $_lang['office_prop_profileFields'] = 'Comma separated list of allowed user fields for update with maximum length of sended values. For example, &profileFields=`username:25,fullname:50,email`.';
 $_lang['office_prop_requiredFields'] = 'Comma separated list of required user fields when update. This fields must be filled for successful update of profile. For example, &requiredFields=`username,fullname,email`.';
+
+$_lang['office_prop_avatarPath'] = 'Directory for save users avatars in MODX_ASSETS_PATH. By default is "images/users/".';
+$_lang['office_prop_avatarParams'] = 'JSON string with parameters for avatar convertation via phpThumb. By default is "{"w":200,"h":200,"zc":0,"bg":"ffffff","f":"jpg"}".';

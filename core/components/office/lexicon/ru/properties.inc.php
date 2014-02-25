@@ -23,3 +23,6 @@ $_lang['office_prop_linkTTL'] = 'Время жизни ссылки актива
 
 $_lang['office_prop_profileFields'] = 'Список разрешенных для редактирования полей юзера, через запятую. Также можно указать максимальну. длину значений, через двоеточие. Например, &profileFields=`username:25,fullname:50,email`.';
 $_lang['office_prop_requiredFields'] = 'Список обязательных полей при редактировании. Эти поля должны быть заполнены для успешного обновления профиля. Например, &requiredFields=`username,fullname,email`.';
+
+$_lang['office_prop_avatarPath'] = 'Директория для сохранения аватаров пользователей внутри MODX_ASSETS_PATH. По умолчанию - "images/users/".';
+$_lang['office_prop_avatarParams'] = 'JSON строка с параметрами конвертации аватара при помощи phpThumb. По умолчанию - "{"w":200,"h":200,"zc":0,"bg":"ffffff","f":"jpg"}".';

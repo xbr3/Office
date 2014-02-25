@@ -18,5 +18,6 @@ $_lang['office_auth_err_send'] = 'Could not send email: [[+errors]]';
 $_lang['office_auth_err_login'] = 'Error when logging in: [[+errors]]';
 $_lang['office_auth_err_already_sent'] = 'We recently sent you a link - you need to activate it. If you do not receive the email, check your spam folder.';
 $_lang['office_auth_err_already_logged'] = 'You are already logged in the system.';
+$_lang['office_auth_err_sudo_user'] = 'This user must login via manager.';
 
 $_lang['office_auth_email_send'] = 'Login link on the site sent. Check your email.';

@@ -2,6 +2,12 @@
 
 class officeAuthController extends officeDefaultController {
 
+
+	/**
+	 * Default config
+	 *
+	 * @param array $config
+	 */
 	public function setDefault($config = array()) {
 		if (defined('MODX_ACTION_MODE') && MODX_ACTION_MODE && !empty($_SESSION['Office']['Auth'][$this->modx->context->key])) {
 			$this->config = $_SESSION['Office']['Auth'][$this->modx->context->key];
@@ -46,11 +52,21 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Returns array with language topics
+	 *
+	 * @return array
+	 */
 	public function getLanguageTopics() {
 		return array('office:auth');
 	}
 
 
+	/**
+	 * Returns login form
+	 *
+	 * @return string
+	 */
 	public function defaultAction() {
 		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
 			// Save page_id for current context
@@ -98,6 +114,13 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Check email of user and start login process
+	 *
+	 * @param array $data
+	 *
+	 * @return array|string
+	 */
 	public function sendLink($data = array()) {
 		$email = strtolower(trim(@$data['email']));
 		if ($this->modx->user->isAuthenticated($this->modx->context->key)) {
@@ -109,11 +132,11 @@ class officeAuthController extends officeDefaultController {
 		if (empty($email)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email_ns'));
 		}
-		else if (!preg_match('/^[^@а-яА-Я]+@[^@а-яА-Я]+(?<!\.)\.[^\.а-яА-Я]{2,}$/m', $email)) {
+		elseif (!preg_match('/^[^@а-яА-Я]+@[^@а-яА-Я]+(?<!\.)\.[^\.а-яА-Я]{2,}$/m', $email)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email'));
 		}
 
-		if ($this->modx->getCount('modUser', array('username' => $email)) || $this->modx->getCount('modUserProfile', array('email' => $email))) {
+		if ($this->modx->getCount('modUserProfile', array('email' => $email))) {
 			return $this->sendMail($email);
 		}
 		else {
@@ -122,27 +145,42 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Generate new password and send activation link for existing user
+	 *
+	 * @param $email
+	 *
+	 * @return array|string
+	 */
 	public function sendMail($email) {
-		/* @var modUser $user */
-		if (!$user = $this->modx->getObject('modUser', array('username' => $email))) {
+		/** @var modUser $user */
+		$q = $this->modx->newQuery('modUser');
+		$q->innerJoin('modUserProfile', 'modUserProfile', 'modUser.id = modUserProfile.internalKey');
+		//$q->where(array('modUser.username' => $email, 'OR:modUserProfile.email:=' => $email));
+		$q->where(array('modUserProfile.email' => $email));
+		$q->select($this->modx->getSelectColumns('modUser','modUser') . ',`modUserProfile`.`email`');
+		if (!$user = $this->modx->getObject('modUser', $q)) {
 			return $this->error($this->modx->lexicon('office_auth_err_email_nf'));
 		}
+		elseif ($user->sudo) {
+			return $this->error($this->modx->lexicon('office_auth_err_sudo_user'));
+		}
 
-		$activationHash = md5(uniqid(md5($user->get('email') . '/' . $user->get('id')), true));
+		$activationHash = md5(uniqid(md5($user->email . '/' . $user->id), true));
 
-		$this->modx->getService('registry', 'registry.modRegistry');
-		$this->modx->registry->getRegister('user', 'registry.modDbRegister');
-		$this->modx->registry->user->connect();
+		/** @var modDbRegister $registry */
+		$registry = $this->modx->getService('registry', 'registry.modRegistry')->getRegister('user', 'registry.modDbRegister');
+		$registry->connect();
 
 		// checking for already sent activation link
-		$this->modx->registry->user->subscribe('/pwd/reset/' . md5($user->get('username')));
-		$res = $this->modx->registry->user->read(array('poll_limit' => 1, 'remove_read' => false));
+		$registry->subscribe('/pwd/reset/' . md5($user->username));
+		$res = $registry->read(array('poll_limit' => 1, 'remove_read' => false));
 		if (!empty($res)) {
 			return $this->error($this->modx->lexicon('office_auth_err_already_sent'));
 		}
 
-		$this->modx->registry->user->subscribe('/pwd/reset/');
-		$this->modx->registry->user->send('/pwd/reset/', array(md5($user->get('username')) => $activationHash), array('ttl' => $this->config['linkTTL']));
+		$registry->subscribe('/pwd/reset/');
+		$registry->send('/pwd/reset/', array(md5($user->username) => $activationHash), array('ttl' => $this->config['linkTTL']));
 
 		$newPassword = $user->generatePassword();
 
@@ -156,7 +194,7 @@ class officeAuthController extends officeDefaultController {
 				? $_REQUEST['pageId']
 				: $this->modx->getOption('site_start')
 			);
-		$this->modx->log(1, $id);
+
 		$link = $this->modx->makeUrl($id, '', array(
 				'action' => 'auth/login'
 				,'email' => $email
@@ -191,6 +229,13 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Create new user and send activation email
+	 *
+	 * @param $email
+	 *
+	 * @return array|string
+	 */
 	public function createUser($email) {
 		$response = $this->office->runProcessor('auth/create', array(
 			'username' => $email
@@ -204,7 +249,6 @@ class officeAuthController extends officeDefaultController {
 			$errors = implode(', ', $response->getAllErrors());
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Unable to create user '.$email.'. Message: '.$errors);
 			return $this->error($this->modx->lexicon('office_auth_err_create', array('errors' => $errors)));
-
 		}
 		else {
 			return $this->sendMail($email);
@@ -212,22 +256,37 @@ class officeAuthController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Login to site
+	 *
+	 * @param $data
+	 *
+	 * @return void|string
+	 */
 	public function Login($data) {
-		/* @var modUser $user */
-		if ($user = $this->modx->getObject('modUser', array('username' => @$data['email']))) {
-			list($hash, $password) = explode(':', @$data['hash']);
+		/** @var modUser $user */
+		$q = $this->modx->newQuery('modUser');
+		$q->innerJoin('modUserProfile', 'modUserProfile', 'modUser.id = modUserProfile.internalKey');
+		//$q->where(array('modUser.username' => @$data['email'], 'OR:modUserProfile.email:=' => @$data['email']));
+		$q->where(array('modUserProfile.email' => @$data['email']));
+		if ($user = $this->modx->getObject('modUser', $q)) {
+			list($hash, $password) = explode(':', urldecode(@$data['hash']));
 			$activate = $user->activatePassword($hash);
 			if ($activate === true) {
-				$user->set('active', 1);
-				$user->save();
+				if (!$user->active) {
+					$user->set('active', true);
+					$user->save();
+				}
 
 				$login_data = array(
-					'username' => $data['email']
+					'username' => $user->username
 					,'password' => $password
 					,'rememberme' => $this->config['rememberme']
 					,'login_context' => $this->config['loginContext']
 				);
-				if (!empty($this->config['addContexts'])) {$login_data['add_contexts'] = $this->config['addContexts'];}
+				if (!empty($this->config['addContexts'])) {
+					$login_data['add_contexts'] = $this->config['addContexts'];
+				}
 
 				$response = $this->modx->runProcessor('security/login', $login_data);
 				if ($response->isError()) {
@@ -235,14 +294,16 @@ class officeAuthController extends officeDefaultController {
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] unable to login user '.$data['email'].'. Message: '.$errors);
 					return $this->modx->lexicon('office_auth_err_login', array('errors' => $errors));
 				}
-				$this->sendRedirect('login');
 			}
 		}
-
 		$this->sendRedirect('login');
+		return true;
 	}
 
 
+	/**
+	 * Logount current user
+	 */
 	public function Logout() {
 		if ($this->config['HybridAuth'] && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
 			if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
@@ -281,7 +342,7 @@ class officeAuthController extends officeDefaultController {
 			}
 			$url = $this->modx->makeUrl($this->config['loginResourceId'], '', '', 'full');
 		}
-		else if ($action == 'logout' && $this->config['logoutResourceId']) {
+		elseif ($action == 'logout' && $this->config['logoutResourceId']) {
 			if (in_array($this->config['logoutResourceId'], $error_pages)) {
 				$this->config['logoutResourceId'] = $this->config['page_id'];
 			}

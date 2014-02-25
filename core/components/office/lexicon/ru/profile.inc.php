@@ -5,7 +5,12 @@ $_lang['office_profile_header'] = 'Вы должны заполнить обяз
 
 $_lang['office_profile_gravatar'] = 'Аватар';
 $_lang['office_profile_gravatar_desc'] = 'Картинка загружается с <a href="http://gravatar.com/" target="_blank">Gravatar</a>';
-$_lang['office_profile_fullname'] = 'Имя';
+$_lang['office_profile_avatar'] = 'Аватар';
+$_lang['office_profile_avatar_desc'] = 'Если вы не загрузите собственную картинку, аватар будет получен автоматически с сервиса <a target="_blank" href="http://gravatar.com/">Gravatar</a>';
+$_lang['office_profile_avatar_remove'] = 'Удалить изображение';
+$_lang['office_profile_username'] = 'Имя пользователя';
+$_lang['office_profile_username_desc'] = 'Имя пользователя, например ivan_petrov';
+$_lang['office_profile_fullname'] = 'Полное имя';
 $_lang['office_profile_fullname_desc'] = 'Ваше полное имя, например Иван Петров.';
 $_lang['office_profile_email'] = 'Email';
 $_lang['office_profile_email_desc'] = 'Новый email нужно будет подтвердить.';

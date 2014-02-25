@@ -9,17 +9,20 @@ class officeProfileController extends officeDefaultController {
 		}
 		else {
 			$this->config = array_merge(array(
-				'tplProfile' => 'tpl.Office.profile.form'
-				,'tplActivate' => 'tpl.Office.profile.activate'
+				'tplProfile' => 'tpl.Office.profile.form',
+				'tplActivate' => 'tpl.Office.profile.activate',
 
-				,'profileFields' => 'email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website'
-				,'requiredFields' => 'email,fullname'
+				'profileFields' => 'username:50,email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website',
+				'requiredFields' => 'username,email,fullname',
 
-				,'HybridAuth' => true
-				,'providerTpl' => 'tpl.HybridAuth.provider'
-				,'activeProviderTpl' => 'tpl.HybridAuth.provider.active'
+				'HybridAuth' => true,
+				'providerTpl' => 'tpl.HybridAuth.provider',
+				'activeProviderTpl' => 'tpl.HybridAuth.provider.active',
 
-				,'page_id' => $this->modx->getOption('office_profile_page_id')
+				'page_id' => $this->modx->getOption('office_profile_page_id'),
+
+				'avatarPath' => 'images/users/',
+				'avatarParams' => '{"w":200,"h":200,"zc":0,"bg":"ffffff","f":"jpg"}',
 			), $config);
 		}
 
@@ -38,11 +41,21 @@ class officeProfileController extends officeDefaultController {
 	}
 
 
+	/**
+	 * Returns array with language topics
+	 *
+	 * @return array
+	 */
 	public function getLanguageTopics() {
 		return array('office:profile','core:user');
 	}
 
 
+	/**
+	 * Returns profile form
+	 *
+	 * @return string
+	 */
 	public function defaultAction() {
 		if ($this->modx->resource->id && $this->modx->resource->id != $this->config['page_id']) {
 			// Save page_id for current context
@@ -117,8 +130,15 @@ class officeProfileController extends officeDefaultController {
 			return $this->error($this->modx->lexicon('office_err_auth'));
 		}
 
-		$fields = array();
+		$requiredFields = array_map('trim', explode(',', $this->config['requiredFields']));
+
+		$fields = array(
+			'requiredFields' => $requiredFields,
+			'avatarPath' => $this->config['avatarPath'],
+			'avatarParams' => $this->config['avatarParams'],
+		);
 		$profileFields = explode(',', $this->config['profileFields']);
+		$profileFields = array_merge($profileFields, $requiredFields);
 		foreach ($profileFields as $field) {
 			if (strpos($field, ':') !== false) {
 				list($key, $length) = explode(':', $field);
@@ -143,7 +163,6 @@ class officeProfileController extends officeDefaultController {
 			}
 		}
 
-		$fields['requiredFields'] = array_map('trim', explode(',', $this->config['requiredFields']));
 		$current_email = $this->modx->user->Profile->get('email');
 		$new_email = !empty($fields['email']) ? trim($fields['email']) : '';
 		$changeEmail = !($current_email == $new_email);
@@ -151,13 +170,18 @@ class officeProfileController extends officeDefaultController {
 		/* @var modProcessorResponse $response */
 		$response = $this->office->runProcessor('profile/update', $fields);
 		if ($response->isError()) {
+			$message = $response->hasMessage()
+				? $response->getMessage()
+				: $this->modx->lexicon('office_profile_err_update');
 			$errors = array();
-			$tmp = $response->getAllErrors(':');
-			foreach ($tmp as $v) {
-				$tmp2 = explode(':',$v);
-				$errors[$tmp2[0]] = $tmp2[1];
+			if ($response->hasFieldErrors()) {
+				if ($tmp = $response->getFieldErrors()) {
+					foreach ($tmp as $error) {
+						$errors[$error->field] = $error->message;
+					}
+				}
 			}
-			return $this->error($this->modx->lexicon('office_profile_err_update'), $errors);
+			return $this->error($message, $errors);
 		}
 
 		if ($changeEmail) {
@@ -216,12 +240,12 @@ class officeProfileController extends officeDefaultController {
 	public function changeEmail($email, $id) {
 		$activationHash = md5(uniqid(md5($this->modx->user->get('email') . '/' . $this->modx->user->get('id')), true));
 
-		$this->modx->getService('registry', 'registry.modRegistry');
-		$this->modx->registry->getRegister('user', 'registry.modDbRegister');
-		$this->modx->registry->user->connect();
-		$this->modx->registry->user->subscribe('/email/change/');
-		$this->modx->registry->user->send('/email/change/',
-			array(md5($this->modx->user->get('username')) => array(
+		/** @var modDbRegister $register */
+		$register = $this->modx->getService('registry', 'registry.modRegistry')->getRegister('user', 'registry.modDbRegister');
+		$register->connect();
+		$register->subscribe('/email/change/');
+		$register->send('/email/change/',
+			array(md5($this->modx->user->Profile->get('email')) => array(
 				'hash' => $activationHash
 				,'email' => $email
 			)
@@ -243,19 +267,20 @@ class officeProfileController extends officeDefaultController {
 			)
 		);
 
-		$this->modx->getService('mail', 'mail.modPHPMailer');
-		$this->modx->mail->set(modMail::MAIL_BODY, $chunk);
-		$this->modx->mail->set(modMail::MAIL_FROM, $this->modx->getOption('emailsender'));
-		$this->modx->mail->set(modMail::MAIL_FROM_NAME, $this->modx->getOption('site_name'));
-		$this->modx->mail->set(modMail::MAIL_SENDER, $this->modx->getOption('emailsender'));
-		$this->modx->mail->set(modMail::MAIL_SUBJECT, $this->modx->lexicon('office_profile_email_subject'));
-		$this->modx->mail->address('to', $email);
-		$this->modx->mail->address('reply-to', $this->modx->getOption('emailsender'));
-		$this->modx->mail->setHTML(true);
-		$response = !$this->modx->mail->send()
-			? $this->modx->mail->mailer->errorInfo
+		/** @var modPHPMailer $mail */
+		$mail = $this->modx->getService('mail', 'mail.modPHPMailer');
+		$mail->set(modMail::MAIL_BODY, $chunk);
+		$mail->set(modMail::MAIL_FROM, $this->modx->getOption('emailsender'));
+		$mail->set(modMail::MAIL_FROM_NAME, $this->modx->getOption('site_name'));
+		$mail->set(modMail::MAIL_SENDER, $this->modx->getOption('emailsender'));
+		$mail->set(modMail::MAIL_SUBJECT, $this->modx->lexicon('office_profile_email_subject'));
+		$mail->address('to', $email);
+		$mail->address('reply-to', $this->modx->getOption('emailsender'));
+		$mail->setHTML(true);
+		$response = !$mail->send()
+			? $mail->mailer->errorInfo
 			: true;
-		$this->modx->mail->reset();
+		$mail->reset();
 
 		return $response;
 	}
@@ -267,15 +292,15 @@ class officeProfileController extends officeDefaultController {
 	 * @param $data
 	 */
 	public function confirmEmail($data) {
-		$this->modx->getService('registry', 'registry.modRegistry');
-		$this->modx->registry->getRegister('user', 'registry.modDbRegister');
-		$this->modx->registry->user->connect();
-		$this->modx->registry->user->subscribe('/email/change/' . md5($this->modx->user->get('username')));
-		$msgs = $this->modx->registry->user->read(array('poll_limit' => 1));
+		/** @var modDbRegister $register */
+		$register = $this->modx->getService('registry', 'registry.modRegistry')->getRegister('user', 'registry.modDbRegister');
+		$register->connect();
+		$register->subscribe('/email/change/' . md5($this->modx->user->Profile->get('email')));
+		$msgs = $register->read(array('poll_limit' => 1));
 		if (!empty($msgs[0])) {
 			$msgs = reset($msgs);
 			if (@$data['hash'] === @$msgs['hash'] && !empty($msgs['email'])) {
-				$this->modx->user->set('username', $msgs['email']);
+				//$this->modx->user->set('username', $msgs['email']);
 				$this->modx->user->getOne('Profile')->set('email', $msgs['email']);
 				$this->modx->user->save();
 			}

@@ -14,11 +14,11 @@ $tmp = array(
 
 	'profileFields' => array(
 		'type' => 'textfield',
-		'value' => 'email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website',
+		'value' => 'username:50,email:50,fullname:50,phone:12,mobilephone:12,dob:10,gender,address,country,city,state,zip,fax,photo,comment,website',
 	),
 	'requiredFields' => array(
 		'type' => 'textfield',
-		'value' => 'email,fullname',
+		'value' => 'username,email,fullname',
 	),
 
 	'HybridAuth' => array(
@@ -36,6 +36,15 @@ $tmp = array(
 	'activeProviderTpl' => array(
 		'type' => 'textfield',
 		'value' => 'tpl.HybridAuth.provider.active',
+	),
+
+	'avatarParams' => array(
+		'type' => 'textfield',
+		'value' => '{"w":200,"h":200,"zc":0,"bg":"ffffff","f":"jpg"}',
+	),
+	'avatarPath' => array(
+		'type' => 'textfield',
+		'value' => 'images/users/',
 	),
 
 );
