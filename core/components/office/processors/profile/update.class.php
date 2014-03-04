@@ -91,8 +91,8 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 			: '';
 
 		// Check image dir
-		$tmp = explode('/', str_replace(MODX_CORE_PATH, '', MODX_ASSETS_PATH . $path));
-		$dir = rtrim(MODX_CORE_PATH, '/');
+		$tmp = explode('/', str_replace(MODX_BASE_PATH, '', MODX_ASSETS_PATH . $path));
+		$dir = rtrim(MODX_BASE_PATH, '/');
 		foreach ($tmp as $v) {
 			if (empty($v)) {continue;}
 			$dir .= '/' . $v;
