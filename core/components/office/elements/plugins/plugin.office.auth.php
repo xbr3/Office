@@ -2,17 +2,22 @@
 switch ($modx->event->name) {
 
 	case 'OnHandleRequest':
-		if (!empty($_REQUEST['action']) && in_array(urldecode($_REQUEST['action']), array('auth/login', 'auth/logout'))) {
+		$actions = array('auth/login', 'auth/logout', 'remote/login', 'remote/logout');
+
+		if (!empty($_REQUEST['action']) && in_array(urldecode($_REQUEST['action']), $actions)) {
+
 			$params = array();
 			foreach ($_REQUEST as $k => $v) {
 				$params[$k] = urldecode($v);
 			}
 			if (!$modx->loadClass('office', MODX_CORE_PATH . 'components/office/model/office/', false, true)) {return;}
-			$config = !empty($_SESSION['Office']['Auth'][$modx->context->key])
-				? $_SESSION['Office']['Auth'][$modx->context->key]
-				: array();
-			$Office = new Office($modx, $config);
 
+			list($controller, $action) = explode('/', $params['action']);
+			$config = !empty($_SESSION['Office'][ucfirst($controller)][$modx->context->key])
+				? $_SESSION['Office'][ucfirst($controller)][$modx->context->key]
+				: array();
+
+			$Office = new Office($modx, $config);
 			$Office->loadAction($params['action'], array_merge($params, $config));
 		}
 		elseif ($modx->context->key != 'web' && !$modx->user->id) {
@@ -21,5 +26,9 @@ switch ($modx->event->name) {
 				$modx->getUser($modx->context->key);
 			}
 		}
+		break;
+
+	case 'OnWebAuthentication':
+		$modx->event->_output = !empty($_SESSION['Office']['Auth']['verified']);
 		break;
 }

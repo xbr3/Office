@@ -1,13 +1,14 @@
 Changelog for Office.
 
-0.9.6-beta
+1.0.0-beta
 ==============
-- [Auth] To use regular user names, not email.
+- [Auth] Ability to use regular user names, not email.
 - [Profile] Added system setting to force using emails as usernames.
 - [Profile] Ability to change username.
 - [Profile] Ability to upload user avatar.
 - Updated chunks for Bootstrap 3.
 - Ability to overwrite chunks on update.
+- [Remote] New controller for remote authentication.
 
 0.9.5-pl2
 ==============

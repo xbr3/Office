@@ -11,6 +11,14 @@ $tmp = array(
 		'file' => 'auth.logout',
 		'description' => '',
 	),
+	'tpl.Office.remote.login' => array(
+		'file' => 'remote.login',
+		'description' => '',
+	),
+	'tpl.Office.remote.logout' => array(
+		'file' => 'remote.logout',
+		'description' => '',
+	),
 	'tpl.Office.auth.activate' => array(
 		'file' => 'auth.activate',
 		'description' => '',

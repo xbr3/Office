@@ -164,6 +164,9 @@ class Office {
 					return $controller->$action($scriptProperties);
 				}
 			}
+			else {
+				return 'Could not load controller "'.$name.'"';
+			}
 		}
 
 		return false;

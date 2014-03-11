@@ -5,7 +5,6 @@ class officeAuthUserCreateProcessor extends modUserCreateProcessor {
 	public $classKey = 'modUser';
 	public $languageTopics = array('core:default','core:user');
 	public $permission = '';
-	public $objectType = 'hauser';
 	public $beforeSaveEvent = 'OnBeforeUserFormSave';
 	public $afterSaveEvent = 'OnUserFormSave';
 
@@ -55,6 +54,16 @@ class officeAuthUserCreateProcessor extends modUserCreateProcessor {
 		return $memberships;
 	}
 
+
+	/**
+	 * @return modUserProfile
+	 */
+	public function addProfile() {
+		parent::addProfile();
+
+		$this->profile->set('photo', $this->getProperty('photo'));
+		return $this->profile;
+	}
 
 }
 

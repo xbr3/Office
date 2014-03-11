@@ -21,6 +21,14 @@ $tmp = array(
 		'file' => 'office.auth'
 		,'description' => ''
 	),
+	'officeRemoteAuth' => array(
+		'file' => 'office.remote_auth'
+		,'description' => ''
+	),
+	'officeRemoteServer' => array(
+		'file' => 'office.remote_server'
+		,'description' => ''
+	),
 );
 
 foreach ($tmp as $k => $v) {

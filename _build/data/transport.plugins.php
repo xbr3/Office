@@ -17,6 +17,9 @@ $tmp = array(
 			'OnHandleRequest' => array(
 				'priority' => 20
 			),
+			'OnWebAuthentication' => array(
+				'priority' => 10
+			),
 		)
 	),
 );

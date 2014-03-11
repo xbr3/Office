@@ -26,3 +26,10 @@ $_lang['office_prop_requiredFields'] = 'Comma separated list of required user fi
 
 $_lang['office_prop_avatarPath'] = 'Directory for save users avatars in MODX_ASSETS_PATH. By default is "images/users/".';
 $_lang['office_prop_avatarParams'] = 'JSON string with parameters for avatar convertation via phpThumb. By default is "{"w":200,"h":200,"zc":0,"bg":"ffffff","f":"jpg"}".';
+
+$_lang['office_prop_remote'] = 'Mandatory address of a page on a remote server by calling the snippet "officeAuthServer.';
+$_lang['office_prop_key'] = 'Mandatory data encryption key to protect transmitted information. The key must be the same on the client and server.';
+$_lang['office_prop_createUser'] = 'Allow to create new users.';
+$_lang['office_prop_updateUser'] = 'Allow to update existing users data from the remote server.';
+$_lang['office_prop_authId'] = 'Id of the page of the site for user authorization. After successful authorization of the user he must be sent back to the snippet "officeRemoteServer.';
+$_lang['office_prop_hosts'] = 'Comma-separated list of domains that are allowed to access the login page.';

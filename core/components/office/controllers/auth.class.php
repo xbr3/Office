@@ -304,25 +304,29 @@ class officeAuthController extends officeDefaultController {
 	/**
 	 * Logount current user
 	 */
-	public function Logout() {
-		if ($this->config['HybridAuth'] && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
-			if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
-				$HybridAuth = new HybridAuth($this->modx, $this->config);
-				@$HybridAuth->Hybrid_Auth->logoutAllProviders();
+	public function Logout($redirect = true) {
+		if ($this->modx->user->isAuthenticated($this->modx->context->key)) {
+			if (!empty($this->config['HybridAuth']) && file_exists(MODX_CORE_PATH . 'components/hybridauth/')) {
+				if ($this->modx->loadClass('hybridauth', MODX_CORE_PATH . 'components/hybridauth/model/hybridauth/', false, true)) {
+					$HybridAuth = new HybridAuth($this->modx, $this->config);
+					@$HybridAuth->Hybrid_Auth->logoutAllProviders();
+				}
+			}
+
+			$logout_data = array();
+			if (!empty($this->config['loginContext'])) {$logout_data['login_context'] = $this->config['loginContext'];}
+			if (!empty($this->config['addContexts'])) {$logout_data['add_contexts'] = $this->config['addContexts'];}
+
+			$response = $this->modx->runProcessor('security/logout', $logout_data);
+			if ($response->isError()) {
+				$errors = implode(', ',$response->getAllErrors());
+				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
 			}
 		}
 
-		$logout_data = array();
-		if (!empty($this->config['loginContext'])) {$logout_data['login_context'] = $this->config['loginContext'];}
-		if (!empty($this->config['addContexts'])) {$logout_data['add_contexts'] = $this->config['addContexts'];}
-
-		$response = $this->modx->runProcessor('security/logout', $logout_data);
-		if ($response->isError()) {
-			$errors = implode(', ',$response->getAllErrors());
-			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
+		if ($redirect) {
+			$this->sendRedirect('logout');
 		}
-
-		$this->sendRedirect('logout');
 	}
 
 
