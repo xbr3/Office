@@ -10,4 +10,8 @@
 
 	<small>[[%ha.providers_available]]:</small><br/>
 	[[+providers]]
+
+	[[+error:notempty=`
+		<div class="alert alert-block alert-danger alert-error">[[+error]]</div>
+	`]]
 </div>

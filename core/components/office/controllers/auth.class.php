@@ -101,6 +101,18 @@ class officeAuthController extends officeDefaultController {
 		}
 
 		if (!$this->modx->user->isAuthenticated($this->modx->context->key)) {
+			// Login errors
+			if (!empty($_SESSION['Office']['Auth']['error'])) {
+				$pls['error'] = $_SESSION['Office']['Auth']['error'];
+			}
+			elseif (!empty($_SESSION['HA']['error'])) {
+				$pls['error'] = $_SESSION['HA']['error'];
+			}
+			elseif (!empty($_SESSION['Office']['Auth']['error']) && !empty($_SESSION['HA']['error'])) {
+				$pls['error'] = $_SESSION['Office']['Auth']['error'] . '<br/>' . $_SESSION['HA']['error'];
+			}
+			unset($_SESSION['Office']['Auth']['error'],$_SESSION['HA']['error']);
+
 			return $this->modx->getChunk($this->config['tplLogin'], $pls);
 		}
 		else {
@@ -246,7 +258,7 @@ class officeAuthController extends officeDefaultController {
 		));
 
 		if ($response->isError()) {
-			$errors = implode(', ', $response->getAllErrors());
+			$errors = $this->formatProcessorErrors($response);
 			$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Unable to create user '.$email.'. Message: '.$errors);
 			return $this->error($this->modx->lexicon('office_auth_err_create', array('errors' => $errors)));
 		}
@@ -290,7 +302,7 @@ class officeAuthController extends officeDefaultController {
 
 				$response = $this->modx->runProcessor('security/login', $login_data);
 				if ($response->isError()) {
-					$errors = implode(', ',$response->getAllErrors());
+					$errors = $this->formatProcessorErrors($response);
 					$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] unable to login user '.$data['email'].'. Message: '.$errors);
 					return $this->modx->lexicon('office_auth_err_login', array('errors' => $errors));
 				}
@@ -319,7 +331,7 @@ class officeAuthController extends officeDefaultController {
 
 			$response = $this->modx->runProcessor('security/logout', $logout_data);
 			if ($response->isError()) {
-				$errors = implode(', ',$response->getAllErrors());
+				$errors = $this->formatProcessorErrors($response);
 				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] logout error. Username: '.$this->modx->user->get('username').', uid: '.$this->modx->user->get('id').'. Message: '.$errors);
 			}
 		}
@@ -376,6 +388,31 @@ class officeAuthController extends officeDefaultController {
 		$this->modx->sendRedirect($url);
 	}
 
+
+	/**
+	 * More convenient error messages
+	 *
+	 * @param modProcessorResponse $response
+	 * @param string $glue
+	 *
+	 * @return string
+	 */
+	public function formatProcessorErrors(modProcessorResponse $response, $glue = 'br') {
+		$errormsgs = array();
+
+		if ($response->hasMessage()) {
+			$errormsgs[] = $response->getMessage();
+		}
+		if ($response->hasFieldErrors()) {
+			if ($errors = $response->getFieldErrors()) {
+				foreach ($errors as $error) {
+					$errormsgs[] = $error->message;
+				}
+			}
+		}
+
+		return implode($glue, $errormsgs);
+	}
 }
 
 return 'officeAuthController';

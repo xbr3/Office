@@ -9,6 +9,7 @@ Changelog for Office.
 - Updated chunks for Bootstrap 3.
 - Ability to overwrite chunks on update.
 - [Remote] New controller for remote authentication.
+- Improved login errros handling.
 
 0.9.5-pl2
 ==============

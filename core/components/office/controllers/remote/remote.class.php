@@ -116,7 +116,7 @@ class officeRemoteAuthController extends officeAuthController {
 						/** @var modProcessorResponse $response */
 						$response = $this->office->runProcessor('auth/update', $data);
 						if ($response->isError()) {
-							$errors = implode(', ', $response->getAllErrors());
+							$errors = $this->formatProcessorErrors($response);
 							$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Unable to update user "'.@$data['username'].'". Message: '.$errors);
 							$_SESSION['Office']['Auth']['error'] = $this->modx->lexicon('office_auth_err_update', array('errors' => $errors));
 						}
@@ -132,7 +132,7 @@ class officeRemoteAuthController extends officeAuthController {
 						/** @var modProcessorResponse $response */
 						$response = $this->office->runProcessor('auth/create', $data);
 						if ($response->isError()) {
-							$errors = implode(', ', $response->getAllErrors());
+							$errors = $this->formatProcessorErrors($response);
 							$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] Unable to create user "'.@$data['username'].'". Message: '.$errors);
 							$_SESSION['Office']['Auth']['error'] = $this->modx->lexicon('office_auth_err_create', array('errors' => $errors));
 						}
@@ -158,7 +158,7 @@ class officeRemoteAuthController extends officeAuthController {
 
 						$response = $this->modx->runProcessor('security/login', $login_data);
 						if ($response->isError()) {
-							$_SESSION['Office']['Auth']['error'] = $this->modx->lexicon('office_auth_err_login', array('errors' => implode(', ',$response->getAllErrors())));
+							$_SESSION['Office']['Auth']['error'] = $this->modx->lexicon('office_auth_err_login', array('errors' => $this->formatProcessorErrors($response)));
 						}
 					}
 				}
@@ -177,35 +177,33 @@ class officeRemoteAuthController extends officeAuthController {
 	 * Client - server logout
 	 */
 	public function Logout($redirect = true) {
-		if ($this->modx->user->isAuthenticated($this->modx->context->key)) {
-			// Redirect to server
-			if (!empty($this->config['remote']) && empty($_GET['provider'])) {
-				$tmp = $this->explodeUrl($this->config['remote']);
-				$tmp['params']['action'] = 'remote/logout';
-				$tmp['params']['provider'] = 'client';
+		// Redirect to server
+		if (!empty($this->config['remote']) && empty($_GET['provider']) && $this->modx->user->isAuthenticated($this->modx->context->key)) {
+			$tmp = $this->explodeUrl($this->config['remote']);
+			$tmp['params']['action'] = 'remote/logout';
+			$tmp['params']['provider'] = 'client';
 
+			$redirect = $tmp['uri'] . '?' . http_build_query($tmp['params']);
+			$this->modx->sendRedirect($redirect);
+		}
+		elseif (!empty($_GET['provider'])) {
+			// Server logout
+			if ($_GET['provider'] == 'client') {
+				parent::Logout(false);
+
+				$redirect = !empty($_COOKIE['OFFICE_REMOTE_REDIRECT'])
+					? $_COOKIE['OFFICE_REMOTE_REDIRECT']
+					: $_SERVER['HTTP_REFERER'];
+				$tmp = $this->explodeUrl($redirect);
+				$tmp['params']['action'] = 'remote/logout';
+				$tmp['params']['provider'] = 'server';
+				// Back to client
 				$redirect = $tmp['uri'] . '?' . http_build_query($tmp['params']);
 				$this->modx->sendRedirect($redirect);
 			}
-			elseif (!empty($_GET['provider'])) {
-				// Server logout
-				if ($_GET['provider'] == 'client') {
-					parent::Logout(false);
-
-					$redirect = !empty($_COOKIE['OFFICE_REMOTE_REDIRECT'])
-						? $_COOKIE['OFFICE_REMOTE_REDIRECT']
-						: $_SERVER['HTTP_REFERER'];
-					$tmp = $this->explodeUrl($redirect);
-					$tmp['params']['action'] = 'remote/logout';
-					$tmp['params']['provider'] = 'server';
-					// Back to client
-					$redirect = $tmp['uri'] . '?' . http_build_query($tmp['params']);
-					$this->modx->sendRedirect($redirect);
-				}
-				// Client logout
-				elseif ($_GET['provider'] == 'server') {
-					parent::Logout();
-				}
+			// Client logout
+			elseif ($_GET['provider'] == 'server') {
+				parent::Logout();
 			}
 		}
 
