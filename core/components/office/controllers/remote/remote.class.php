@@ -303,6 +303,7 @@ class officeRemoteAuthController extends officeAuthController {
 			header("HTTP/1.1 410 Gone");
 		}
 
+		@session_write_close();
 		exit();
 	}
 

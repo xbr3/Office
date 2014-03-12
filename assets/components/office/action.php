@@ -1,6 +1,7 @@
 <?php
 
 if (empty($_REQUEST['action'])) {
+	@session_write_close();
 	die('Access denied');
 }
 
@@ -28,7 +29,10 @@ if ($ctx != 'web') {
 /* @var Office $Office */
 define('MODX_ACTION_MODE', true);
 $Office = $modx->getService('office','Office', MODX_CORE_PATH . 'components/office/model/office/', array());
-if ($modx->error->hasError() || !($Office instanceof Office)) {die('Error');}
+if ($modx->error->hasError() || !($Office instanceof Office)) {
+	@session_write_close();
+	die('Error');
+}
 $Office->initialize($ctx);
 
 $action = $_REQUEST['action'];

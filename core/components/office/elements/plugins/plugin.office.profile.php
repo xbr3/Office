@@ -25,6 +25,7 @@ switch ($modx->event->name) {
 					}
 					if (!empty($need)) {
 						$modx->sendRedirect($modx->makeUrl($page_id,'',array('off_req' => implode('-',$need)),'full'));
+						@session_write_close();
 						die;
 					}
 				}
