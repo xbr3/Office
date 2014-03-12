@@ -1,6 +1,6 @@
 Changelog for Office.
 
-1.0.0-beta
+1.0.0-beta1
 ==============
 - [Auth] Ability to use regular user names, not email.
 - [Profile] Added system setting to force using emails as usernames.

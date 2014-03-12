@@ -65,13 +65,23 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 	}
 
 
+	/** {@InheritDoc} */
+	public function beforeSave() {
+		$before = parent::beforeSave();
+
+		if ($before) {
+			$this->handlePhoto();
+		}
+		return $before;
+	}
+
+
 	/**
 	 * Upload user photo
 	 *
 	 * @return bool
 	 */
-	public function beforeSave() {
-		// Params
+	public function handlePhoto() {
 		$default_params = array('w' => 200, 'h' => 200, 'bg' => 'ffffff', 'q' => 95, 'zc' => 0, 'f' => 'jpg');
 		$params = $this->modx->fromJSON($this->getProperty('avatarParams'));
 		if (!is_array($params)) {
@@ -132,22 +142,16 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 				$this->modx->log(modX::LOG_LEVEL_ERROR, '[Office] ' . print_r($phpThumb->debugmessages, true));
 			}
 		}
-
 		return true;
 	}
 
 
+	/** {@InheritDoc} */
 	public function afterSave() {
 		if ($this->new_email != $this->current_email) {
 			$this->object->Profile->set('email', $this->current_email);
 			$this->object->Profile->save();
 		}
-		/*
-		elseif ($this->object->username != $this->current_email) {
-			$this->object->set('username', $this->current_email);
-			$this->object->save();
-		}
-		*/
 
 		return parent::afterSave();
 	}
