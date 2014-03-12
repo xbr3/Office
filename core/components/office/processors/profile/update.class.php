@@ -58,6 +58,12 @@ class officeProfileUserUpdateProcessor extends modUserUpdateProcessor {
 		if (!$this->getProperty('username')) {
 			$this->setProperty('username', $this->object->get('username'));
 		}
+		// Allow only uploaded images
+		if ($photo = $this->getProperty('photo')) {
+			if (strpos($photo, '://') !== false) {
+				$this->unsetProperty('photo');
+			}
+		}
 		$this->current_email = $this->object->Profile->get('email');
 		$this->new_email = $this->getProperty('email');
 

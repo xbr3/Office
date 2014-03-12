@@ -58,12 +58,14 @@ class officeAuthUserCreateProcessor extends modUserCreateProcessor {
 	/**
 	 * @return modUserProfile
 	 */
+	/*
 	public function addProfile() {
 		parent::addProfile();
 
 		$this->profile->set('photo', $this->getProperty('photo'));
 		return $this->profile;
 	}
+	*/
 
 }
 
