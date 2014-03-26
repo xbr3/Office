@@ -153,8 +153,8 @@ class officeRemoteAuthController extends officeAuthController {
 							'password' => md5($user->get('username')),
 							'rememberme' => !empty($rememberme)
 						);
-						if (!empty($loginContext)) {$login_data['login_context'] = $loginContext;}
-						if (!empty($addContexts)) {$login_data['add_contexts'] = $addContexts;}
+						if (!empty($this->config['loginContext'])) {$login_data['login_context'] = $this->config['loginContext'];}
+						if (!empty($this->config['addContexts'])) {$login_data['add_contexts'] = $this->config['addContexts'];}
 
 						$response = $this->modx->runProcessor('security/login', $login_data);
 						if ($response->isError()) {
