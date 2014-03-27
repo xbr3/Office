@@ -1,7 +1,7 @@
 <?php
 
 $_lang['office_profile'] = 'Профиль';
-$_lang['office_profile_header'] = 'Вы должны заполнить обязательные поля профиля, отмеченные завездочкой<sup class="red">*</sup>.';
+$_lang['office_profile_header'] = 'Вы должны заполнить обязательные поля профиля, отмеченные звёздочкой<sup class="red">*</sup>.';
 
 $_lang['office_profile_gravatar'] = 'Аватар';
 $_lang['office_profile_gravatar_desc'] = 'Картинка загружается с <a href="http://gravatar.com/" target="_blank">Gravatar</a>';

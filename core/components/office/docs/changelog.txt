@@ -1,6 +1,6 @@
 Changelog for Office.
 
-1.0.0-rc
+1.0.0-rc2
 ==============
 - [Auth] Ability to use regular user names, not email.
 - [Profile] Added system setting to force using emails as usernames.
@@ -10,6 +10,7 @@ Changelog for Office.
 - Ability to overwrite chunks on update.
 - [Remote] New controller for remote authentication.
 - Improved login errros handling.
+- Fixed &profileFields in "officeProfile".
 
 0.9.5-pl2
 ==============

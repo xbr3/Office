@@ -131,15 +131,16 @@ class officeProfileController extends officeDefaultController {
 		}
 
 		$requiredFields = array_map('trim', explode(',', $this->config['requiredFields']));
+		$profileFields = array();
 
 		$fields = array(
 			'requiredFields' => $requiredFields,
 			'avatarPath' => $this->config['avatarPath'],
 			'avatarParams' => $this->config['avatarParams'],
 		);
-		$profileFields = explode(',', $this->config['profileFields']);
-		$profileFields = array_merge($profileFields, $requiredFields);
-		foreach ($profileFields as $field) {
+
+		$tmp = explode(',', $this->config['profileFields']);
+		foreach ($tmp as $field) {
 			if (strpos($field, ':') !== false) {
 				list($key, $length) = explode(':', $field);
 			}
@@ -147,16 +148,25 @@ class officeProfileController extends officeDefaultController {
 				$key = $field;
 				$length = 0;
 			}
+			$profileFields[$key] = $length;
+		}
 
-			if (isset($data[$key])) {
-				if ($key == 'comment') {
-					$fields[$key] = empty($length) ? $data[$key] : substr($data[$key], $length);
+		foreach ($requiredFields as $field) {
+			if (!isset($profileFields[$field])) {
+				$profileFields[$field] = 0;
+			}
+		}
+
+		foreach ($profileFields as $field => $length) {
+			if (isset($data[$field])) {
+				if ($field == 'comment') {
+					$fields[$field] = empty($length) ? $data[$field] : substr($data[$field], $length);
 				}
 				else {
-					$fields[$key] = $this->Sanitize($data[$key], $length);
+					$fields[$field] = $this->Sanitize($data[$field], $length);
 				}
 			}
-			elseif (preg_match('/(.*?)\[(.*?)\]/', $key, $matches)) {
+			elseif (preg_match('/(.*?)\[(.*?)\]/', $field, $matches)) {
 				if (isset($data[$matches[1]][$matches[2]])) {
 					$fields[$matches[1]][$matches[2]] = $this->Sanitize($data[$matches[1]][$matches[2]], $length);
 				}
@@ -224,7 +234,7 @@ class officeProfileController extends officeDefaultController {
 		$sanitized = trim(preg_replace($expr, '', $string));
 
 		return !empty($length)
-			? substr($sanitized, 0, $length)
+			? mb_substr($sanitized, 0, $length, 'UTF-8')
 			: $sanitized;
 	}
 
