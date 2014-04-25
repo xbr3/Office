@@ -20,6 +20,9 @@ $tmp = array(
 			'OnWebAuthentication' => array(
 				'priority' => 10
 			),
+			'OnUserSave' => array(
+				'priority' => 10
+			),
 		)
 	),
 );

@@ -5,7 +5,6 @@ switch ($modx->event->name) {
 		$actions = array('auth/login', 'auth/logout', 'remote/login', 'remote/logout');
 
 		if (!empty($_REQUEST['action']) && in_array(urldecode($_REQUEST['action']), $actions)) {
-
 			$params = array();
 			foreach ($_REQUEST as $k => $v) {
 				$params[$k] = urldecode($v);
@@ -30,5 +29,14 @@ switch ($modx->event->name) {
 
 	case 'OnWebAuthentication':
 		$modx->event->_output = !empty($_SESSION['Office']['Auth']['verified']);
+		break;
+
+	case 'OnUserSave':
+		if (!empty($user) && !empty($mode) && $mode == 'new') {
+			if (!$user->get('remote_key')) {
+				$user->set('remote_key', $user->get('id'));
+				$user->save();
+			}
+		}
 		break;
 }
